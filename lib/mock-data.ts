@@ -308,20 +308,12 @@ export const dashboardStats = {
 };
 
 export const todayTasks = [
-<<<<<<< HEAD
   { id: "t1", title: "3반 김○○ 학생 관찰 및 상담 일지 검토", due: "오늘 15:00", urgent: true },
-=======
-  { id: "t1", title: "3반 김○○ 학생 관찰일지 검토", due: "오늘 15:00", urgent: true },
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   { id: "t2", title: "보건 교사 협의 회신(급식 거부 건)", due: "오늘 17:00", urgent: false },
   { id: "t3", title: "지역 복지관 연계 서류 최종 확인", due: "내일 10:00", urgent: false },
 ];
 
-<<<<<<< HEAD
 export const notifications = [
-=======
-export const collaborationFeed = [
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   {
     id: "c1",
     dept: "상담실",
@@ -345,22 +337,15 @@ export const collaborationFeed = [
   },
 ];
 
-<<<<<<< HEAD
 /** (구) 부서별 협업 알림: 호환용 alias */
 export const collaborationFeed = notifications;
-
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 export type ObservationRole = "담임" | "상담" | "보건" | "교감실" | "총괄";
 
 export type ObservationEntry = {
   id: string;
   role: ObservationRole;
   author: string;
-<<<<<<< HEAD
   visibility: "public" | "private";
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   content: string;
   createdAt: string;
   tags?: string[];
@@ -371,10 +356,7 @@ export const initialObservations: ObservationEntry[] = [
     id: "o1",
     role: "담임",
     author: "이○○",
-<<<<<<< HEAD
     visibility: "public",
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
     content:
       "최근 수업 참여도가 낮고 과제 제출이 두 차례 누락되었습니다. 친구 관계 질문 시 회피하는 모습이 관찰됩니다.",
     createdAt: "2026-04-02 14:20",
@@ -384,10 +366,7 @@ export const initialObservations: ObservationEntry[] = [
     id: "o2",
     role: "상담",
     author: "박○○",
-<<<<<<< HEAD
     visibility: "public",
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
     content:
       "개별 면담에서 가족 갈등 언급. 정서적으로 불안해 보이며 긍정적 자기 진술이 어려운 상태입니다.",
     createdAt: "2026-04-02 16:05",
@@ -397,10 +376,7 @@ export const initialObservations: ObservationEntry[] = [
     id: "o3",
     role: "보건",
     author: "최○○",
-<<<<<<< HEAD
     visibility: "public",
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
     content:
       "점심 급식 섭취량 감소(2주 지속). 두통 호소 1회. 수면 시간 부족 가능성 안내.",
     createdAt: "2026-04-03 09:10",
@@ -408,11 +384,7 @@ export const initialObservations: ObservationEntry[] = [
   },
 ];
 
-<<<<<<< HEAD
 /** 학생별 관찰 및 상담 일지(목업) — 명단 행 클릭 시 표시 */
-=======
-/** 학생별 통합 관찰일지(목업) — 명단 행 클릭 시 표시 */
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 export const observationsByStudentId: Record<string, ObservationEntry[]> = {};
 
 managedStudents.forEach((s) => {
@@ -428,10 +400,7 @@ managedStudents.forEach((s) => {
       id: `${s.id}-o1`,
       role: "담임",
       author: "이○○",
-<<<<<<< HEAD
       visibility: "public",
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       content: `${s.name} 학생: 출석·수업 참여 관찰 메모(목업). ${s.gradeClass}`,
       createdAt: "2026-04-02 09:15",
       tags: ["관찰", "출석"],
@@ -440,10 +409,7 @@ managedStudents.forEach((s) => {
       id: `${s.id}-o2`,
       role: "상담",
       author: "박○○",
-<<<<<<< HEAD
       visibility: "public",
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       content: `${s.name} 학생 정기 면담 기록(목업). 사례 ${s.caseRef}`,
       createdAt: "2026-03-28 16:00",
       tags: ["상담"],

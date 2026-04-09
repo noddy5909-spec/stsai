@@ -44,11 +44,7 @@ export function LandingMediaTabs() {
       <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-200">
         {[
           "통합지원 프로세스 소개 영상(목업)",
-<<<<<<< HEAD
-          "관찰 및 상담 일지 작성 가이드(목업)",
-=======
           "관찰일지 작성 가이드(목업)",
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
           "학맞통 EASY 데모 시연(목업)",
         ].map((t) => (
           <li key={t} className="py-2.5 text-sm text-slate-700">
@@ -65,11 +61,7 @@ export function LandingNoticeTabs() {
   const items: Record<string, { title: string; date: string }[]> = {
     notice: [
       { title: "학맞통 EASY UI 프로토타입 배포(목업)", date: "2026-04-03" },
-<<<<<<< HEAD
-      { title: "관찰 및 상담 일지 양식 개정 안내(목업)", date: "2026-04-01" },
-=======
       { title: "통합 관찰일지 양식 개정 안내(목업)", date: "2026-04-01" },
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       { title: "시스템 점검 없음(목업)", date: "2026-03-28" },
     ],
     hire: [

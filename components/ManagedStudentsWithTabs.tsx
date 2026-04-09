@@ -7,10 +7,7 @@ import {
   managedStudents,
   type ManagedStudent,
   type ObservationEntry,
-<<<<<<< HEAD
   type ObservationRole,
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 } from "@/lib/mock-data";
 
 type ManagedStudentStatus = ManagedStudent["status"];
@@ -28,24 +25,16 @@ function statusTextClass(status: ManagedStudentStatus) {
   }
 }
 
-<<<<<<< HEAD
 function nowTimestamp() {
   const d = new Date();
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
-
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
   if (items.length === 0) {
     return (
       <p className="px-5 py-10 text-center text-sm text-slate-500">
-<<<<<<< HEAD
         등록된 관찰 및 상담 일지가 없습니다(목업).
-=======
-        등록된 통합 관찰일지가 없습니다(목업).
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       </p>
     );
   }
@@ -55,7 +44,6 @@ function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
       <ul className="divide-y divide-slate-200 border-t border-slate-200">
         {items.map((obs) => (
           <li key={obs.id} className="py-4">
-<<<<<<< HEAD
             <p className="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs text-slate-500">
               <span>
                 {obs.role} · {obs.author} · {obs.createdAt}
@@ -65,10 +53,6 @@ function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
                   비공개
                 </span>
               )}
-=======
-            <p className="text-xs text-slate-500">
-              {obs.role} · {obs.author} · {obs.createdAt}
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
             </p>
             <p className="mt-2 whitespace-pre-wrap text-sm leading-relaxed text-slate-800">
               {obs.content}
@@ -86,7 +70,6 @@ function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
 }
 
 export function ManagedStudentsWithTabs() {
-<<<<<<< HEAD
   const currentUser = useMemo(
     () =>
       ({
@@ -95,9 +78,6 @@ export function ManagedStudentsWithTabs() {
       }) satisfies { role: ObservationRole; author: string },
     [],
   );
-
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   const studentById = useMemo(
     () => Object.fromEntries(managedStudents.map((s) => [s.id, s])),
     [],
@@ -106,7 +86,6 @@ export function ManagedStudentsWithTabs() {
   const [openJournalIds, setOpenJournalIds] = useState<string[]>([]);
   const [activeTab, setActiveTab] = useState<"list" | string>("list");
 
-<<<<<<< HEAD
   const [observationsByStudent, setObservationsByStudent] = useState<
     Record<string, ObservationEntry[]>
   >(() => {
@@ -122,9 +101,6 @@ export function ManagedStudentsWithTabs() {
   const [draftVisibility, setDraftVisibility] = useState<
     ObservationEntry["visibility"]
   >("public");
-
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   function openStudentJournal(studentId: string) {
     setOpenJournalIds((prev) =>
       prev.includes(studentId) ? prev : [...prev, studentId],
@@ -144,11 +120,7 @@ export function ManagedStudentsWithTabs() {
   const activeStudent =
     activeTab !== "list" ? studentById[activeTab] : undefined;
   const activeObservations =
-<<<<<<< HEAD
     activeTab !== "list" ? (observationsByStudent[activeTab] ?? []) : [];
-=======
-    activeTab !== "list" ? getObservationsForStudent(activeTab) : [];
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 
   const tabBarBg = "bg-[#dde6f0]";
 
@@ -163,11 +135,7 @@ export function ManagedStudentsWithTabs() {
       <div
         className={`flex flex-nowrap items-end gap-1 overflow-x-auto overflow-y-visible px-1 pt-1 pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${tabBarBg}`}
         role="tablist"
-<<<<<<< HEAD
         aria-label="관리 학생 및 관찰 및 상담 일지"
-=======
-        aria-label="관리 학생 및 관찰일지"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       >
         <button
           type="button"
@@ -205,11 +173,7 @@ export function ManagedStudentsWithTabs() {
                   selected ? "font-semibold text-slate-900" : ""
                 }`}
               >
-<<<<<<< HEAD
                 {s.name} · 관찰 및 상담 일지
-=======
-                {s.name} · 관찰일지
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               </button>
               <button
                 type="button"
@@ -218,11 +182,7 @@ export function ManagedStudentsWithTabs() {
                     ? "text-slate-400 hover:bg-slate-100 hover:text-slate-700"
                     : "text-slate-400/90 hover:bg-black/[0.07] hover:text-slate-800"
                 }`}
-<<<<<<< HEAD
                 aria-label={`${s.name} 관찰 및 상담 일지 탭 닫기`}
-=======
-                aria-label={`${s.name} 관찰일지 탭 닫기`}
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
                 onClick={(e) => closeJournalTab(sid, e)}
               >
                 <X className="size-4 shrink-0" strokeWidth={2.25} aria-hidden />
@@ -237,11 +197,7 @@ export function ManagedStudentsWithTabs() {
           <>
             <div className="border-b border-slate-100 px-5 py-3">
               <p className="text-xs text-slate-500">
-<<<<<<< HEAD
                 행을 선택하면 관찰 및 상담 일지 탭이 열립니다. 총{" "}
-=======
-                행을 선택하면 통합 관찰일지 탭이 열립니다. 총{" "}
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
                 {managedStudents.length}명(목업).
               </p>
             </div>
@@ -311,7 +267,6 @@ export function ManagedStudentsWithTabs() {
                   </span>
                 </p>
                 <p className="mt-1 text-xs text-slate-500">
-<<<<<<< HEAD
                   관찰 및 상담 일지 · 공동 작성(목업)
                 </p>
               </div>
@@ -413,11 +368,6 @@ export function ManagedStudentsWithTabs() {
                   </div>
                 </form>
               </div>
-=======
-                  통합 관찰일지(목업)
-                </p>
-              </div>
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               <ObservationTimeline items={activeObservations} />
             </>
           )

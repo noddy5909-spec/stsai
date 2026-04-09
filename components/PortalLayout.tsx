@@ -2,40 +2,21 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-<<<<<<< HEAD
 import { useEffect, useMemo, useState } from "react";
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 import { PrivacyFooter } from "./PrivacyFooter";
 
 const NAVY = "#003876";
 
 const primaryNavItems = [
-<<<<<<< HEAD
   { href: "/hmt-apply", label: "학맞통 신청" },
   { href: "/dashboard", label: "관리 학생 명단" },
   { href: "/exchange", label: "통합지원신청" },
   { href: "/forms", label: "서식 모음" },
 ] as const;
-=======
-  { href: "/dashboard", label: "관리 학생 명단" },
-  { href: "/exchange", label: "통합지원신청" },
-];
-
-const applyStepItems = [
-  { href: "/exchange", label: "1 · 관찰·발견" },
-  { href: "/analyze", label: "2 · 통합·진단" },
-  { href: "/support", label: "3 · 통합·지원" },
-  { href: "/yield", label: "4 · 사후·관리" },
-];
-
-const applyPathPrefixes = ["/exchange", "/analyze", "/support", "/yield"];
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 
 export function PortalLayout({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const isLanding = pathname === "/landing";
-<<<<<<< HEAD
   const isLogin = pathname === "/login";
   const isPublicPage = isLanding || isLogin;
   const isDashboard = pathname === "/dashboard";
@@ -77,25 +58,15 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
   }, [remainingSec]);
 
   if (isPublicPage) {
-=======
-
-  if (isLanding) {
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
     return (
       <div className="min-h-screen bg-white text-slate-800">{children}</div>
     );
   }
 
-<<<<<<< HEAD
   const isHmtApply =
     pathname === "/hmt-apply" || pathname.startsWith("/hmt-apply/");
   const isApplyFlow = pathname === "/exchange" || pathname.startsWith("/exchange/");
   const isForms = pathname === "/forms" || pathname.startsWith("/forms/");
-=======
-  const isApplyFlow = applyPathPrefixes.some(
-    (p) => pathname === p || pathname.startsWith(`${p}/`),
-  );
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 
   const mainVerticalPad =
     pathname === "/exchange" ? "pb-6 pt-0" : "py-6";
@@ -111,7 +82,6 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
           <p className="max-w-md text-xs leading-relaxed text-white/75">
             입력·표시 데이터는 이 브라우저에서만 처리되는 프로토타입입니다.
           </p>
-<<<<<<< HEAD
           {isDashboard && timerLabel && (
             <div className="flex items-center gap-2 rounded border border-white/30 bg-white/10 px-2.5 py-1 text-xs text-white">
               <span className="tabular-nums">{timerLabel}</span>
@@ -128,15 +98,12 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
               </button>
             </div>
           )}
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
         </div>
 
         <nav className="px-4 sm:px-6" aria-label="주 메뉴">
           <div className="-mb-px flex w-full items-center gap-1 overflow-x-auto">
             {primaryNavItems.map((item) => {
               const active =
-<<<<<<< HEAD
                 item.href === "/hmt-apply"
                   ? isHmtApply
                   : item.href === "/dashboard"
@@ -146,11 +113,6 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
                       : item.href === "/forms"
                         ? isForms
                         : false;
-=======
-                item.href === "/dashboard"
-                  ? pathname === "/dashboard"
-                  : isApplyFlow && item.href === "/exchange";
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               return (
                 <Link
                   key={item.href}
@@ -168,37 +130,6 @@ export function PortalLayout({ children }: { children: React.ReactNode }) {
           </div>
         </nav>
 
-<<<<<<< HEAD
-=======
-        {isApplyFlow && pathname !== "/exchange" && (
-          <div
-            className="border-t border-white/15 bg-white"
-            role="navigation"
-            aria-label="통합지원신청 단계"
-          >
-            <div className="flex w-full items-center gap-1 overflow-x-auto px-4 py-2 sm:px-6">
-              {applyStepItems.map((item) => {
-                const active =
-                  pathname === item.href ||
-                  pathname.startsWith(`${item.href}/`);
-                return (
-                  <Link
-                    key={item.href}
-                    href={item.href}
-                    className={`shrink-0 rounded px-2.5 py-1.5 text-xs transition-colors sm:text-sm ${
-                      active
-                        ? "font-semibold text-[#003876] underline decoration-[#003876] decoration-2 underline-offset-4"
-                        : "text-slate-600 hover:bg-slate-50 hover:text-[#003876]"
-                    }`}
-                  >
-                    {item.label}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
-        )}
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
       </header>
 
       <main

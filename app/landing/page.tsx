@@ -5,11 +5,7 @@ import { PrivacyFooter } from "@/components/PrivacyFooter";
 const NAVY = "#003876";
 
 const serviceTiles = [
-<<<<<<< HEAD
-  { label: "관찰 및 상담 일지", tone: "bg-amber-100 text-amber-900" },
-=======
   { label: "통합 관찰일지", tone: "bg-amber-100 text-amber-900" },
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   { label: "통합지원신청", tone: "bg-emerald-100 text-emerald-900" },
   { label: "맞춤 진단·요약", tone: "bg-sky-100 text-sky-900" },
   { label: "기관·제도 연계", tone: "bg-rose-100 text-rose-900" },
@@ -32,11 +28,7 @@ const pressItems = [
   },
   {
     cat: "공지",
-<<<<<<< HEAD
-    title: "관찰 및 상담 일지 입력 항목 조정(목업)",
-=======
     title: "통합 관찰일지 입력 항목 조정(목업)",
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
     excerpt: "현장 피드백을 반영한 안내 문구가 반영되었습니다.",
     date: "2026-03-28",
   },
@@ -130,11 +122,7 @@ export default function LandingPage() {
               </a>
             ))}
             <Link
-<<<<<<< HEAD
-              href="/login"
-=======
               href="/dashboard"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               className="rounded border border-white/40 bg-white/10 px-3 py-1 font-medium text-white hover:bg-white/20"
             >
               포털
@@ -164,11 +152,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-<<<<<<< HEAD
-              href="/login"
-=======
               href="/dashboard"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               className="inline-flex items-center justify-center rounded border-2 border-[#003876] bg-[#003876] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#002d5c]"
             >
               포털 열기
@@ -221,11 +205,7 @@ export default function LandingPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <Link
-<<<<<<< HEAD
-              href="/login"
-=======
               href="/dashboard"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               className="rounded bg-white px-4 py-2 text-xs font-semibold text-[#003876] hover:bg-slate-100 sm:text-sm"
             >
               바로가기
@@ -412,11 +392,7 @@ export default function LandingPage() {
           </div>
           <div className="mt-10 text-center">
             <Link
-<<<<<<< HEAD
-              href="/login"
-=======
               href="/dashboard"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               className="inline-block rounded border-2 border-[#003876] px-6 py-2.5 text-sm font-semibold text-[#003876] hover:bg-[#003876] hover:text-white"
             >
               포털로 이동

@@ -1,6 +1,5 @@
 "use client";
 
-<<<<<<< HEAD
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
@@ -10,14 +9,6 @@ import {
   type ObservationEntry,
   type ManagedStudent,
   type SupportRecommendation,
-=======
-import { ChevronDown, Sparkles } from "lucide-react";
-import { useEffect, useMemo, useRef, useState } from "react";
-import {
-  getSupportRecommendations,
-  managedStudents,
-  type ManagedStudent,
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 } from "@/lib/mock-data";
 
 function statusTextClass(status: ManagedStudent["status"]) {
@@ -37,7 +28,6 @@ function studentSummaryLine(s: ManagedStudent) {
   return `${s.gradeClass} · ${s.caseRef} · ${s.supportArea} · 최근 갱신 ${s.lastUpdated}`;
 }
 
-<<<<<<< HEAD
 function summarizeObservations(items: ObservationEntry[]) {
   if (items.length === 0) {
     return {
@@ -136,11 +126,6 @@ export function ExchangeClient() {
   const [screenMode, setScreenMode] = useState<"overview" | "apply">("overview");
   const [selectedRecommendation, setSelectedRecommendation] =
     useState<SupportRecommendation | null>(null);
-=======
-export function ExchangeClient() {
-  const [selectedId, setSelectedId] = useState<string | null>(null);
-  const [listOpen, setListOpen] = useState(false);
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
   const rootRef = useRef<HTMLDivElement>(null);
 
   const selectedStudent = useMemo(
@@ -153,7 +138,6 @@ export function ExchangeClient() {
       selectedStudent ? getSupportRecommendations(selectedStudent) : [],
     [selectedStudent],
   );
-<<<<<<< HEAD
   const observations = useMemo(
     () => (selectedStudent ? getObservationsForStudent(selectedStudent.id) : []),
     [selectedStudent],
@@ -169,8 +153,6 @@ export function ExchangeClient() {
         : null,
     [selectedRecommendation, selectedStudent],
   );
-=======
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 
   useEffect(() => {
     if (!listOpen) return;
@@ -184,7 +166,6 @@ export function ExchangeClient() {
   }, [listOpen]);
 
   return (
-<<<<<<< HEAD
     <div className="space-y-6 py-4">
       <div className="space-y-3">
         <h1 className="text-xl font-bold leading-tight text-[#003876]">
@@ -198,7 +179,7 @@ export function ExchangeClient() {
               id="exchange-student-trigger"
               aria-haspopup="listbox"
               aria-expanded={listOpen}
-            aria-label="학생 명단 선택"
+              aria-label="학생 명단 선택"
               onClick={() => setListOpen((o) => !o)}
               onKeyDown={(e) => {
                 if (e.key === "Escape") setListOpen(false);
@@ -294,115 +275,11 @@ export function ExchangeClient() {
           >
             통합 신청
           </button>
-=======
-    <div className="space-y-6">
-      <div className="grid grid-cols-1 gap-3 sm:grid-cols-[auto_minmax(12rem,1fr)] sm:grid-rows-2 sm:items-center sm:gap-x-4 sm:gap-y-2 md:gap-x-5 lg:max-w-6xl">
-        <h1 className="text-xl font-bold leading-tight text-[#003876] sm:col-start-1 sm:row-start-1 sm:self-end sm:pb-px">
-          통합지원신청
-        </h1>
-
-        <p className="text-sm leading-tight text-slate-500 sm:col-start-1 sm:row-start-2 sm:self-center">
-          학생 선택
-        </p>
-
-        <label
-          id="exchange-student-label"
-          className="mb-1 block text-xs font-medium text-slate-600 sm:col-start-2 sm:row-start-1 sm:mb-0 sm:self-end"
-        >
-          학생 명단
-        </label>
-
-        <div
-          ref={rootRef}
-          className="relative min-w-0 w-full sm:col-start-2 sm:row-start-2 lg:max-w-5xl"
-        >
-          <button
-            type="button"
-            id="exchange-student-trigger"
-            aria-haspopup="listbox"
-            aria-expanded={listOpen}
-            aria-labelledby="exchange-student-label exchange-student-trigger"
-            onClick={() => setListOpen((o) => !o)}
-            onKeyDown={(e) => {
-              if (e.key === "Escape") setListOpen(false);
-            }}
-            className="flex w-full items-start gap-2 border border-slate-200 bg-white px-3 py-2 text-left text-sm outline-none transition-colors hover:border-slate-300 focus-visible:ring-2 focus-visible:ring-[#003876]/45"
-          >
-            <span className="min-w-0 flex-1">
-              {selectedStudent ? (
-                <>
-                  <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
-                    <span className="font-semibold text-slate-900">
-                      {selectedStudent.name}
-                    </span>
-                    <span
-                      className={`text-xs font-medium ${statusTextClass(selectedStudent.status)}`}
-                    >
-                      {selectedStudent.status}
-                    </span>
-                  </span>
-                  <span className="mt-0.5 block text-xs leading-snug text-slate-600">
-                    {studentSummaryLine(selectedStudent)}
-                  </span>
-                </>
-              ) : (
-                <span className="block text-slate-500">학생을 선택하세요…</span>
-              )}
-            </span>
-            <ChevronDown
-              className={`mt-0.5 size-4 shrink-0 text-slate-500 transition-transform ${listOpen ? "rotate-180" : ""}`}
-              aria-hidden
-            />
-          </button>
-
-          {listOpen ? (
-            <ul
-              role="listbox"
-              aria-labelledby="exchange-student-label"
-              className="absolute left-0 right-0 z-50 mt-1 max-h-72 overflow-auto border border-slate-200 bg-white py-1 shadow-lg"
-            >
-              {managedStudents.map((s) => {
-                const isSelected = selectedId === s.id;
-                return (
-                  <li key={s.id} role="presentation">
-                    <button
-                      type="button"
-                      role="option"
-                      aria-selected={isSelected}
-                      onClick={() => {
-                        setSelectedId(s.id);
-                        setListOpen(false);
-                      }}
-                      className={`flex w-full flex-col items-stretch gap-0.5 px-3 py-2 text-left text-sm transition-colors ${
-                        isSelected
-                          ? "bg-[#f0f4fa] text-slate-900"
-                          : "hover:bg-slate-50"
-                      }`}
-                    >
-                      <span className="font-semibold text-slate-900">
-                        {s.name}
-                      </span>
-                      <span className="break-words text-xs leading-snug text-slate-600">
-                        {studentSummaryLine(s)}
-                      </span>
-                      <span
-                        className={`text-xs font-medium ${statusTextClass(s.status)}`}
-                      >
-                        상태 · {s.status}
-                      </span>
-                    </button>
-                  </li>
-                );
-              })}
-            </ul>
-          ) : null}
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
         </div>
       </div>
 
       <div className="w-full min-w-0">
         {selectedStudent ? (
-<<<<<<< HEAD
           screenMode === "apply" ? (
             <section
               className="overflow-hidden border border-slate-300/80 bg-white"
@@ -432,47 +309,10 @@ export function ExchangeClient() {
                     <span
                       className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
                         selectedRecommendation.category === "제도"
-=======
-          <section
-            className="overflow-hidden border border-slate-300/80 bg-white"
-            aria-live="polite"
-            aria-label="AI 추천 제도 및 기관"
-          >
-            <div className="flex flex-wrap items-center gap-2 border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-              <Sparkles
-                className="size-4 text-[#003876]"
-                strokeWidth={2}
-                aria-hidden
-              />
-              <h2 className="text-sm font-semibold text-slate-900">
-                AI 추천 제도·기관
-              </h2>
-              <span className="rounded-full bg-[#003876]/12 px-2 py-0.5 text-[10px] font-medium uppercase tracking-wide text-[#003876]">
-                목업 알고리즘
-              </span>
-              <p className="w-full text-xs text-slate-500 sm:w-auto sm:pl-2">
-                선택:{" "}
-                <span className="font-medium text-slate-800">
-                  {selectedStudent.name}
-                </span>
-                <span className="text-slate-400"> · </span>
-                {selectedStudent.supportArea} · {selectedStudent.status}
-              </p>
-            </div>
-
-            <ul className="divide-y divide-slate-100 px-5 py-4">
-              {recommendations.map((rec) => (
-                <li key={rec.id} className="py-4 first:pt-0 last:pb-0">
-                  <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                    <span
-                      className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                        rec.category === "제도"
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
                           ? "bg-violet-100 text-violet-800"
                           : "bg-emerald-100 text-emerald-800"
                       }`}
                     >
-<<<<<<< HEAD
                       {selectedRecommendation.category}
                     </span>
                     <span className="text-xs font-medium text-slate-500">
@@ -657,55 +497,13 @@ export function ExchangeClient() {
               </section>
             </div>
           )
-=======
-                      {rec.category}
-                    </span>
-                    <span className="text-xs font-medium text-slate-500">
-                      적합도 {rec.confidencePercent}%
-                    </span>
-                  </div>
-                  <p className="mt-2 text-sm font-medium text-slate-900">
-                    {rec.title}
-                  </p>
-                  <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
-                    {rec.rationale}
-                  </p>
-                  <div
-                    className="mt-2 h-1.5 max-w-xs overflow-hidden rounded-full bg-slate-100"
-                    aria-hidden
-                  >
-                    <div
-                      className="h-full rounded-full bg-[#003876]/90"
-                      style={{ width: `${rec.confidencePercent}%` }}
-                    />
-                  </div>
-                </li>
-              ))}
-            </ul>
-
-            <p className="border-t border-slate-100 bg-slate-50/50 px-5 py-2.5 text-[11px] leading-relaxed text-slate-500">
-              본 추천은 지원영역·사례 상태를 입력으로 한 규칙 기반 목업입니다. 실제
-              서비스에서는 검색·정책 DB와 생성 모델을 결합해 산출할 수 있습니다.
-            </p>
-          </section>
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
         ) : (
           <section
             className="flex min-h-[min(360px,50vh)] flex-col items-center justify-center border border-dashed border-slate-200 bg-slate-50/40 px-6 py-12 text-center"
             aria-label="추천 안내"
           >
-<<<<<<< HEAD
             <p className="mt-4 text-sm font-medium text-slate-600">
               학생을 선택하면 관찰 및 상담 일지와 AI 분석 결과가 표시됩니다.
-=======
-            <Sparkles
-              className="size-8 text-slate-300"
-              strokeWidth={1.5}
-              aria-hidden
-            />
-            <p className="mt-4 text-sm font-medium text-slate-600">
-              학생을 선택하면 AI 추천 제도·기관이 여기에 표시됩니다.
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
             </p>
             <p className="mt-1.5 max-w-sm text-xs text-slate-500">
               화면 상단에서 대상 학생을 고른 뒤 확인해 보세요.

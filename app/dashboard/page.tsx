@@ -1,12 +1,7 @@
-<<<<<<< HEAD
-import {
-  notifications,
-=======
 import Link from "next/link";
 import {
   collaborationFeed,
   todayTasks,
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
 } from "@/lib/mock-data";
 import { ManagedStudentsWithTabs } from "@/components/ManagedStudentsWithTabs";
 
@@ -19,13 +14,6 @@ export default function DashboardPage() {
 
       <aside className="min-w-0 space-y-6 lg:col-span-4">
         <section className="border border-slate-200 bg-white p-5 shadow-sm">
-<<<<<<< HEAD
-          <h2 className="text-sm font-semibold text-[#003876]">
-            알림
-          </h2>
-          <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
-            {notifications.map((item) => (
-=======
           <h2 className="text-sm font-semibold text-[#003876]">오늘의 할 일</h2>
           <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
             {todayTasks.map((task) => (
@@ -57,7 +45,6 @@ export default function DashboardPage() {
           </h2>
           <ul className="mt-4 divide-y divide-slate-100 border-t border-slate-100">
             {collaborationFeed.map((item) => (
->>>>>>> 591fd6b54b028640e0305966d84a48de2a70a24c
               <li key={item.id} className="py-3">
                 <p className="text-xs font-medium text-slate-700">{item.dept}</p>
                 <p className="mt-1 text-sm text-slate-700">{item.message}</p>
