@@ -397,7 +397,7 @@ export function ManagedStudentsWithTabs({
 
                         setObservationsByStudent((prev) => ({
                           ...prev,
-                          [activeStudent.id]: [entry, ...(prev[activeStudent.id] ?? [])],
+                          [activeStudent.id]: [...(prev[activeStudent.id] ?? []), entry],
                         }));
                         setDraftContent(counselTemplate);
                         setDraftTag("");

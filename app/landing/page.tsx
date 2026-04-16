@@ -122,7 +122,7 @@ export default function LandingPage() {
               </a>
             ))}
             <Link
-              href="/dashboard"
+              href="/hmt-apply"
               className="rounded border border-white/40 bg-white/10 px-3 py-1 font-medium text-white hover:bg-white/20"
             >
               포털
@@ -152,7 +152,7 @@ export default function LandingPage() {
           </p>
           <div className="mt-8 flex flex-wrap justify-center gap-3">
             <Link
-              href="/dashboard"
+              href="/hmt-apply"
               className="inline-flex items-center justify-center rounded border-2 border-[#003876] bg-[#003876] px-6 py-2.5 text-sm font-semibold text-white shadow-sm hover:bg-[#002d5c]"
             >
               포털 열기

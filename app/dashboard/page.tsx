@@ -59,21 +59,43 @@ export default function DashboardPage() {
       }`}
     >
       <div className="min-w-0">
-        <ManagedStudentsWithTabs onStudentSelect={setSelectedStudentId} />
+        <div className="flex h-full flex-col gap-3">
+          <ManagedStudentsWithTabs onStudentSelect={setSelectedStudentId} />
+          {selectedStudent && (
+            <section className="flex min-h-[220px] flex-col border border-slate-200 bg-white p-4 shadow-sm">
+              <h2 className="text-sm font-semibold text-[#003876]">상담 내역</h2>
+              <p className="mt-1 text-xs text-slate-500">
+                {selectedStudent.name} · {selectedStudent.gradeClass}
+              </p>
+              <ul className="mt-3 min-h-0 flex-1 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100">
+                {selectedObservations.length > 0 ? (
+                  selectedObservations.map((obs) => (
+                    <li key={obs.id} className="py-2.5">
+                      <p className="text-[11px] text-slate-500">
+                        {obs.role} · {obs.author} · {obs.createdAt}
+                      </p>
+                      <p className="mt-1 whitespace-pre-wrap text-sm leading-snug text-slate-700">
+                        {obs.content}
+                      </p>
+                      {obs.tags && obs.tags.length > 0 && (
+                        <p className="mt-1 text-xs text-slate-400">{obs.tags.join(" · ")}</p>
+                      )}
+                    </li>
+                  ))
+                ) : (
+                  <li className="py-3 text-sm text-slate-500">등록된 상담일지가 없습니다.</li>
+                )}
+              </ul>
+            </section>
+          )}
+        </div>
       </div>
 
-      <aside className="min-w-0 h-full lg:self-stretch">
+      <aside className="min-w-0 lg:sticky lg:top-28 lg:self-start">
         {selectedStudent ? (
-          <section className="flex h-full flex-col border border-slate-200 bg-white p-4 shadow-sm">
-            <div className="mb-2 flex items-center justify-between">
+          <section className="flex flex-col border border-slate-200 bg-white p-4 shadow-sm">
+            <div className="mb-2">
               <h2 className="text-sm font-semibold text-[#003876]">상담일지</h2>
-              <button
-                type="button"
-                onClick={() => setSelectedStudentId(null)}
-                className="text-xs text-slate-500 underline underline-offset-2 hover:text-slate-700"
-              >
-                알림으로
-              </button>
             </div>
             <p className="text-xs text-slate-500">
               {selectedStudent.name} · {selectedStudent.gradeClass}
@@ -99,7 +121,7 @@ export default function DashboardPage() {
                 };
                 setObservationsByStudent((prev) => ({
                   ...prev,
-                  [selectedStudent.id]: [entry, ...(prev[selectedStudent.id] ?? [])],
+                  [selectedStudent.id]: [...(prev[selectedStudent.id] ?? []), entry],
                 }));
                 setDraftContent(counselTemplate());
                 setDraftTag("");
@@ -145,28 +167,9 @@ export default function DashboardPage() {
                 </button>
               </div>
             </form>
-            <ul className="mt-3 min-h-0 flex-1 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100">
-              {selectedObservations.length > 0 ? (
-                selectedObservations.map((obs) => (
-                  <li key={obs.id} className="py-2.5">
-                    <p className="text-[11px] text-slate-500">
-                      {obs.role} · {obs.author} · {obs.createdAt}
-                    </p>
-                    <p className="mt-1 whitespace-pre-wrap text-sm leading-snug text-slate-700">
-                      {obs.content}
-                    </p>
-                    {obs.tags && obs.tags.length > 0 && (
-                      <p className="mt-1 text-xs text-slate-400">{obs.tags.join(" · ")}</p>
-                    )}
-                  </li>
-                ))
-              ) : (
-                <li className="py-3 text-sm text-slate-500">등록된 상담일지가 없습니다.</li>
-              )}
-            </ul>
           </section>
         ) : (
-          <section className="flex h-full flex-col border border-slate-200 bg-white p-4 shadow-sm">
+          <section className="flex flex-col border border-slate-200 bg-white p-4 shadow-sm">
             <h2 className="text-sm font-semibold text-[#003876]">알림</h2>
             <ul className="mt-3 min-h-0 flex-1 divide-y divide-slate-100 overflow-y-auto border-t border-slate-100">
               {notifications.map((item) => (
