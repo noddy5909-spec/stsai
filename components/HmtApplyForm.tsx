@@ -65,6 +65,7 @@ function CheckboxGrid({
   otherValue,
   onOtherChange,
   columns = 3,
+  compact,
 }: {
   options: readonly { id: string; label: string }[];
   state: CheckState;
@@ -72,8 +73,8 @@ function CheckboxGrid({
   otherKey?: string;
   otherValue?: string;
   onOtherChange?: (v: string) => void;
-  /** 2: 좁은 그룹, 3: 기본, 4: 돌봄 등 항목 많을 때 */
   columns?: 2 | 3 | 4;
+  compact?: boolean;
 }) {
   const colClass =
     columns === 4
@@ -81,25 +82,28 @@ function CheckboxGrid({
       : columns === 2
         ? "sm:grid-cols-2"
         : "sm:grid-cols-2 lg:grid-cols-3";
+  const labelCls = compact
+    ? "flex cursor-pointer items-start gap-1 py-[1px] pr-0.5"
+    : "flex cursor-pointer items-start gap-1.5 rounded border border-transparent py-[1px] pr-1 hover:bg-slate-50";
+  const textCls = compact
+    ? "text-[10px] leading-tight text-slate-900 sm:text-[11px]"
+    : "text-[11px] leading-tight text-slate-800 sm:text-xs";
   return (
-    <div className={`grid gap-x-3 gap-y-1 ${colClass}`}>
+    <div className={`grid gap-x-2 gap-y-0.5 ${colClass}`}>
       {options.map((o) => (
-        <label
-          key={o.id}
-          className="flex cursor-pointer items-start gap-2 rounded border border-transparent py-0.5 pr-1 hover:bg-slate-50"
-        >
+        <label key={o.id} className={labelCls}>
           <input
             type="checkbox"
             checked={!!state[o.id]}
             onChange={() => onToggle(o.id)}
-            className="mt-0.5 shrink-0"
+            className="mt-0.5 size-3.5 shrink-0 accent-slate-900 sm:size-4"
           />
-          <span className="text-xs leading-snug text-slate-800 sm:text-sm">{o.label}</span>
+          <span className={textCls}>{o.label}</span>
         </label>
       ))}
       {otherKey && onOtherChange !== undefined && (
         <label
-          className={`flex flex-wrap items-center gap-2 py-0.5 sm:col-span-2 ${
+          className={`flex flex-wrap items-center gap-1.5 py-0.5 sm:col-span-2 ${
             columns === 4 ? "xl:col-span-4" : columns === 3 ? "lg:col-span-3" : ""
           }`}
         >
@@ -107,22 +111,52 @@ function CheckboxGrid({
             type="checkbox"
             checked={!!state[otherKey]}
             onChange={() => onToggle(otherKey)}
-            className="mt-0.5 shrink-0"
+            className="mt-0.5 size-3.5 shrink-0 accent-slate-900 sm:size-4"
           />
-          <span className="text-sm text-slate-800">기타</span>
+          <span className={textCls}>기타(</span>
           <input
             type="text"
             value={otherValue ?? ""}
             onChange={(e) => onOtherChange(e.target.value)}
-            placeholder="기타 내용"
+            placeholder=""
             disabled={!state[otherKey]}
-            className="min-w-[8rem] flex-1 border border-slate-200 px-2 py-1 text-sm disabled:bg-slate-100"
+            className="min-w-[6rem] flex-1 border-b border-slate-400 bg-transparent px-0.5 py-0.5 text-center text-xs disabled:opacity-50 sm:min-w-[8rem] sm:text-sm"
           />
+          <span className={textCls}>)</span>
         </label>
       )}
     </div>
   );
 }
+
+/** PDF「학생맞춤통합지원 신청서(학교)」테두리·셀 스타일 */
+const sheet = {
+  wrap: "max-sm:-mx-1 max-sm:overflow-x-auto",
+  table:
+    "w-full min-w-0 table-fixed border-collapse border border-slate-900 bg-white text-slate-900 [&_td]:border-slate-900 [&_th]:border-slate-900",
+  titleRow: "border border-slate-900 bg-white px-2 py-2 text-center text-[13px] font-bold leading-snug sm:text-sm",
+  td: "border border-slate-900 p-1 align-top text-[10px] leading-tight sm:p-1.5 sm:text-[11px] sm:leading-snug",
+  /** 상단 6열 표 — 라벨 */
+  thTop:
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[4.7rem] sm:w-[5.3rem]",
+  /** 구분 열(기초수급·학업 등) */
+  thCat:
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
+  thCatHead:
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-semibold break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
+  thItemHead:
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-semibold sm:p-1.5 sm:text-[11px] align-middle min-w-0",
+  /** 세로 블록 제목: 학생 기본사항 / 학생 어려움 */
+  thSection:
+    "border border-slate-900 bg-slate-50 px-0.5 py-1.5 text-center align-middle text-[10px] font-bold leading-tight text-slate-900 sm:w-fit sm:px-1 sm:py-2.5 sm:text-[11px] writing-vertical-rl w-[5.1rem]",
+  thReason:
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[7.15rem] sm:w-[8.35rem]",
+} as const;
+
+const fieldLine =
+  "w-full min-h-[1.35rem] border-0 border-b border-slate-700 bg-transparent py-0 text-center text-[11px] leading-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#003876]/50 sm:text-xs";
+const areaField =
+  "min-h-[4.6rem] w-full resize-y border border-slate-600 p-1.5 text-[11px] leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/30 sm:text-xs";
 
 export function HmtApplyForm() {
   const [applicantName, setApplicantName] = useState("");
@@ -174,15 +208,12 @@ export function HmtApplyForm() {
     window.setTimeout(() => setSavedToast(false), 2000);
   };
 
-  const inputCls =
-    "border border-slate-200 px-2.5 py-1.5 text-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/30";
-
   return (
-    <div className="mx-auto max-w-7xl space-y-4">
-      <div>
+    <div className="mx-auto max-w-4xl space-y-4 print:max-w-none">
+      <div className="print:hidden">
         <h1 className="text-xl font-bold text-[#003876]">학맞통 신청</h1>
-        <p className="mt-1 max-w-4xl text-sm text-slate-500">
-          학생맞춤통합지원 신청서(교직원→교내 협의체) 전자 입력. 저장·전송은 목업입니다.
+        <p className="mt-1 text-sm text-slate-500">
+          아래 서식은「학생맞춤통합지원 신청서(학교)」PDF와 동일한 항목·순서입니다. 저장·전송은 목업입니다.
         </p>
       </div>
 
@@ -193,330 +224,443 @@ export function HmtApplyForm() {
           handleSaveDraft();
         }}
       >
-        <section className="border border-slate-200 bg-white shadow-sm">
-          <header className="border-b border-slate-100 bg-slate-50/90 px-4 py-2">
-            <h2 className="text-sm font-semibold text-slate-900">
-              신청자 · 대상 학생
-            </h2>
-          </header>
-          <div className="grid gap-0 lg:grid-cols-2 lg:divide-x lg:divide-slate-200">
-            <div className="space-y-3 p-4">
-              <p className="text-xs font-semibold text-slate-600">신청자</p>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-3">
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">신청자명</span>
-                  <input
-                    value={applicantName}
-                    onChange={(e) => setApplicantName(e.target.value)}
-                    className={inputCls}
-                  />
-                </label>
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">직위</span>
-                  <input
-                    value={applicantTitle}
-                    onChange={(e) => setApplicantTitle(e.target.value)}
-                    className={inputCls}
-                  />
-                </label>
-                <label className="grid gap-0.5 sm:col-span-3 lg:col-span-1">
-                  <span className="text-xs text-slate-600">학생과의 관계</span>
-                  <input
-                    value={relationToStudent}
-                    onChange={(e) => setRelationToStudent(e.target.value)}
-                    className={inputCls}
-                  />
-                </label>
-              </div>
-            </div>
-            <div className="space-y-3 p-4">
-              <p className="text-xs font-semibold text-slate-600">대상 학생</p>
-              <div className="grid grid-cols-2 gap-3 md:grid-cols-6">
-                <label className="col-span-2 grid gap-0.5 md:col-span-2">
-                  <span className="text-xs text-slate-600">성명</span>
-                  <input
-                    value={studentName}
-                    onChange={(e) => setStudentName(e.target.value)}
-                    className={inputCls}
-                  />
-                </label>
-                <label className="col-span-2 grid gap-0.5 md:col-span-2">
-                  <span className="text-xs text-slate-600">학년/반</span>
-                  <input
-                    value={gradeClass}
-                    onChange={(e) => setGradeClass(e.target.value)}
-                    placeholder="고1 3반"
-                    className={inputCls}
-                  />
-                </label>
-                <label className="col-span-2 grid gap-0.5 md:col-span-2">
-                  <span className="text-xs text-slate-600">생년월일</span>
-                  <input
-                    value={birthDate}
-                    onChange={(e) => setBirthDate(e.target.value)}
-                    placeholder="YYYY-MM-DD"
-                    className={inputCls}
-                  />
-                </label>
-                <fieldset className="col-span-2 flex flex-wrap items-center gap-3 md:col-span-2">
-                  <legend className="sr-only">성별</legend>
-                  <span className="w-full text-xs text-slate-600">성별</span>
-                  <label className="flex items-center gap-1.5 text-sm">
+        <article
+          className="border-2 border-slate-900 bg-white shadow-sm print:border-slate-900 print:shadow-none"
+          aria-label="학생맞춤통합지원 신청서"
+        >
+          <div className={sheet.wrap}>
+            {/* PDF 1페이지: 제목 + 신청자·학생 + 연락처·주소 (6열) */}
+            <table className={`${sheet.table} min-w-[56rem]`}>
+              <caption className="sr-only">
+                학생맞춤통합지원 신청서 교직원에서 교내 협의체로 제출
+              </caption>
+              <colgroup>
+                <col className="w-[6rem]" />
+                <col />
+                <col className="w-[6rem]" />
+                <col />
+                <col className="w-[6rem]" />
+                <col />
+              </colgroup>
+              <thead>
+                <tr>
+                  <th className={sheet.titleRow} colSpan={6} scope="colgroup">
+                    학생맞춤통합지원 신청서(교(직)원→교내 협의체(위원회 또는 팀))
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <th className={sheet.thTop} scope="row">
+                    신청자명
+                  </th>
+                  <td className={sheet.td}>
                     <input
-                      type="radio"
-                      name="gender"
-                      checked={gender === "male"}
-                      onChange={() => setGender("male")}
+                      value={applicantName}
+                      onChange={(e) => setApplicantName(e.target.value)}
+                      className={fieldLine}
+                      autoComplete="name"
                     />
-                    남
-                  </label>
-                  <label className="flex items-center gap-1.5 text-sm">
+                  </td>
+                  <th className={sheet.thTop} scope="row">
+                    직위
+                  </th>
+                  <td className={sheet.td}>
                     <input
-                      type="radio"
-                      name="gender"
-                      checked={gender === "female"}
-                      onChange={() => setGender("female")}
+                      value={applicantTitle}
+                      onChange={(e) => setApplicantTitle(e.target.value)}
+                      className={fieldLine}
                     />
-                    여
-                  </label>
-                </fieldset>
-              </div>
-              <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">연락처(학생)</span>
-                  <input
-                    value={phoneStudent}
-                    onChange={(e) => setPhoneStudent(e.target.value)}
-                    placeholder="000-0000-0000"
-                    className={inputCls}
-                  />
-                </label>
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">연락처(보호자)</span>
-                  <input
-                    value={phoneGuardian}
-                    onChange={(e) => setPhoneGuardian(e.target.value)}
-                    placeholder="000-0000-0000(모)"
-                    className={inputCls}
-                  />
-                </label>
-              </div>
-              <label className="grid gap-0.5">
-                <span className="text-xs text-slate-600">주소</span>
-                <input
-                  value={address}
-                  onChange={(e) => setAddress(e.target.value)}
-                  className={inputCls}
-                />
-              </label>
-            </div>
-          </div>
-        </section>
+                  </td>
+                  <th className={sheet.thTop} scope="row">
+                    학생과의 관계
+                  </th>
+                  <td className={sheet.td}>
+                    <input
+                      value={relationToStudent}
+                      onChange={(e) => setRelationToStudent(e.target.value)}
+                      className={fieldLine}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thTop} scope="row">
+                    성명
+                    <br />
+                    <span className="font-normal">(대상학생)</span>
+                  </th>
+                  <td className={sheet.td}>
+                    <input
+                      value={studentName}
+                      onChange={(e) => setStudentName(e.target.value)}
+                      className={fieldLine}
+                    />
+                  </td>
+                  <th className={sheet.thTop} scope="row">
+                    학년/반
+                  </th>
+                  <td className={sheet.td}>
+                    <input
+                      value={gradeClass}
+                      onChange={(e) => setGradeClass(e.target.value)}
+                      placeholder="예: 고1 3반"
+                      className={fieldLine}
+                    />
+                  </td>
+                  <th className={sheet.thTop} scope="row">
+                    생년월일
+                  </th>
+                  <td className={sheet.td}>
+                    <input
+                      value={birthDate}
+                      onChange={(e) => setBirthDate(e.target.value)}
+                      placeholder="YYYY-MM-DD"
+                      className={fieldLine}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thTop} scope="row">
+                    성별
+                  </th>
+                  <td className={sheet.td} colSpan={5}>
+                    <fieldset className="flex flex-wrap items-center gap-2.5 border-0 p-0 sm:gap-4">
+                      <legend className="sr-only">성별</legend>
+                      <label className="flex items-center gap-1.5 text-sm">
+                        <input
+                          type="radio"
+                          name="gender"
+                          checked={gender === "male"}
+                          onChange={() => setGender("male")}
+                          className="size-3.5 accent-slate-900"
+                        />
+                        남
+                      </label>
+                      <label className="flex items-center gap-1.5 text-sm">
+                        <input
+                          type="radio"
+                          name="gender"
+                          checked={gender === "female"}
+                          onChange={() => setGender("female")}
+                          className="size-3.5 accent-slate-900"
+                        />
+                        여
+                      </label>
+                    </fieldset>
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thTop} rowSpan={2} scope="rowgroup">
+                    연락처
+                  </th>
+                  <td className={`${sheet.td} text-center font-medium`} scope="row">
+                    학생
+                  </td>
+                  <td className={sheet.td} colSpan={2}>
+                    <input
+                      value={phoneStudent}
+                      onChange={(e) => setPhoneStudent(e.target.value)}
+                      placeholder="000-0000-0000"
+                      className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
+                    />
+                  </td>
+                  <th className={sheet.thTop} rowSpan={2} scope="rowgroup">
+                    주소
+                  </th>
+                  <td className={sheet.td} rowSpan={2}>
+                    <span className="mb-1 block font-medium">학생</span>
+                    <input
+                      value={address}
+                      onChange={(e) => setAddress(e.target.value)}
+                      className={fieldLine}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <td className={`${sheet.td} text-center font-medium`} scope="row">
+                    보호자
+                  </td>
+                  <td className={sheet.td} colSpan={2}>
+                    <input
+                      value={phoneGuardian}
+                      onChange={(e) => setPhoneGuardian(e.target.value)}
+                      placeholder="000-0000-0000(모)"
+                      className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-        <section className="border border-slate-200 bg-white shadow-sm">
-          <header className="border-b border-slate-100 bg-slate-50/90 px-4 py-2">
-            <h2 className="text-sm font-semibold text-slate-900">학생 기본사항</h2>
-            <p className="text-xs text-slate-500">해당 시 체크 · 중복 가능</p>
-          </header>
-          <div className="grid gap-4 p-4 lg:grid-cols-3 lg:gap-0 lg:divide-x lg:divide-slate-200">
-            <fieldset className="space-y-2 lg:pr-4">
-              <legend className="text-xs font-semibold text-slate-700">
-                기초수급 보장현황
-              </legend>
-              <CheckboxGrid
-                columns={2}
-                options={basicSupportOptions}
-                state={basicSupport}
-                onToggle={toggle(setBasicSupport)}
-              />
-            </fieldset>
-            <fieldset className="space-y-2 lg:px-4">
-              <legend className="text-xs font-semibold text-slate-700">가족현황</legend>
-              <CheckboxGrid
-                columns={2}
-                options={familyOptions}
-                state={family}
-                onToggle={toggle(setFamily)}
-                otherKey="fam_other"
-                otherValue={familyOtherDetail}
-                onOtherChange={setFamilyOtherDetail}
-              />
-            </fieldset>
-            <fieldset className="space-y-2 lg:pl-4">
-              <legend className="text-xs font-semibold text-slate-700">학생현황</legend>
-              <CheckboxGrid
-                columns={2}
-                options={studentStatusOptions}
-                state={studentStatus}
-                onToggle={toggle(setStudentStatus)}
-                otherKey="stu_other"
-                otherValue={studentStatusOther}
-                onOtherChange={setStudentStatusOther}
-              />
-            </fieldset>
-          </div>
-        </section>
+            {/* 학생 기본사항: 세로 제목 + 구분 + 항목 (3열) */}
+            <table className={sheet.table}>
+              <colgroup>
+                <col className="w-[5.1rem] sm:w-[6rem]" />
+                <col className="w-[5.1rem] sm:w-[6rem]" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th className={sheet.thSection} rowSpan={4} scope="rowgroup">
+                    학생 기본사항
+                  </th>
+                  <th className={sheet.thCatHead} scope="col">
+                    구분
+                  </th>
+                  <th className={sheet.thItemHead} scope="col">
+                    항목(해당 시 체크, 중복 체크 가능)
+                  </th>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    기초수급 보장현황
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={2}
+                      options={basicSupportOptions}
+                      state={basicSupport}
+                      onToggle={toggle(setBasicSupport)}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    가족현황
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={2}
+                      options={familyOptions}
+                      state={family}
+                      onToggle={toggle(setFamily)}
+                      otherKey="fam_other"
+                      otherValue={familyOtherDetail}
+                      onOtherChange={setFamilyOtherDetail}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    학생현황
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={2}
+                      options={studentStatusOptions}
+                      state={studentStatus}
+                      onToggle={toggle(setStudentStatus)}
+                      otherKey="stu_other"
+                      otherValue={studentStatusOther}
+                      onOtherChange={setStudentStatusOther}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-        <section className="border border-slate-200 bg-white shadow-sm">
-          <header className="border-b border-slate-100 bg-slate-50/90 px-4 py-2">
-            <h2 className="text-sm font-semibold text-slate-900">학생 어려움</h2>
-            <p className="text-xs text-slate-500">해당 시 체크 · 중복 가능</p>
-          </header>
-          <div className="grid gap-4 p-4 xl:grid-cols-2 xl:gap-0 xl:divide-x xl:divide-slate-200">
-            <div className="space-y-4 xl:pr-4">
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold text-slate-700">학업</legend>
-                <CheckboxGrid
-                  columns={3}
-                  options={difficultyAcademic}
-                  state={diffAcademic}
-                  onToggle={toggle(setDiffAcademic)}
-                  otherKey="acd_other"
-                  otherValue={diffAcademicOther}
-                  onOtherChange={setDiffAcademicOther}
-                />
-              </fieldset>
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold text-slate-700">심리·정서</legend>
-                <CheckboxGrid
-                  columns={3}
-                  options={difficultyMental}
-                  state={diffMental}
-                  onToggle={toggle(setDiffMental)}
-                  otherKey="men_other"
-                  otherValue={diffMentalOther}
-                  onOtherChange={setDiffMentalOther}
-                />
-              </fieldset>
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold text-slate-700">경제·생활</legend>
-                <CheckboxGrid
-                  columns={2}
-                  options={difficultyEcon}
-                  state={diffEcon}
-                  onToggle={toggle(setDiffEcon)}
-                  otherKey="eco_other"
-                  otherValue={diffEconOther}
-                  onOtherChange={setDiffEconOther}
-                />
-              </fieldset>
-            </div>
-            <div className="space-y-4 xl:pl-4">
-              <fieldset className="space-y-2">
-                <legend className="text-xs font-semibold text-slate-700">
-                  돌봄·안전·건강
-                </legend>
-                <CheckboxGrid
-                  columns={4}
-                  options={difficultyCare}
-                  state={diffCare}
-                  onToggle={toggle(setDiffCare)}
-                  otherKey="car_other"
-                  otherValue={diffCareOther}
-                  onOtherChange={setDiffCareOther}
-                />
-              </fieldset>
-              <label className="grid gap-0.5">
-                <span className="text-xs font-semibold text-slate-700">기타(자유기술)</span>
-                <textarea
-                  value={diffOther}
-                  onChange={(e) => setDiffOther(e.target.value)}
-                  rows={2}
-                  className={inputCls}
-                />
-              </label>
-            </div>
-          </div>
-        </section>
+            {/* 학생 어려움 */}
+            <table className={sheet.table}>
+              <colgroup>
+                <col className="w-[5.1rem] sm:w-[6rem]" />
+                <col className="w-[5.1rem] sm:w-[6rem]" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th className={sheet.thSection} rowSpan={6} scope="rowgroup">
+                    학생 어려움
+                  </th>
+                  <th className={sheet.thCatHead} scope="col">
+                    구분
+                  </th>
+                  <th className={sheet.thItemHead} scope="col">
+                    항목(해당 시 체크, 중복 체크 가능)
+                  </th>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    학업
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={3}
+                      options={difficultyAcademic}
+                      state={diffAcademic}
+                      onToggle={toggle(setDiffAcademic)}
+                      otherKey="acd_other"
+                      otherValue={diffAcademicOther}
+                      onOtherChange={setDiffAcademicOther}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    심리･정서
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={3}
+                      options={difficultyMental}
+                      state={diffMental}
+                      onToggle={toggle(setDiffMental)}
+                      otherKey="men_other"
+                      otherValue={diffMentalOther}
+                      onOtherChange={setDiffMentalOther}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    돌봄･안전･건강
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={3}
+                      options={difficultyCare}
+                      state={diffCare}
+                      onToggle={toggle(setDiffCare)}
+                      otherKey="car_other"
+                      otherValue={diffCareOther}
+                      onOtherChange={setDiffCareOther}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    경제･생활
+                  </th>
+                  <td className={sheet.td}>
+                    <CheckboxGrid
+                      compact
+                      columns={2}
+                      options={difficultyEcon}
+                      state={diffEcon}
+                      onToggle={toggle(setDiffEcon)}
+                      otherKey="eco_other"
+                      otherValue={diffEconOther}
+                      onOtherChange={setDiffEconOther}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thCat} scope="row">
+                    기타
+                  </th>
+                  <td className={sheet.td}>
+                    <textarea
+                      value={diffOther}
+                      onChange={(e) => setDiffOther(e.target.value)}
+                      rows={3}
+                      className={areaField}
+                      placeholder="해당 시 기술"
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
 
-        <section className="border border-slate-200 bg-white shadow-sm">
-          <div className="grid gap-0 lg:grid-cols-2 lg:divide-x lg:divide-slate-200">
-            <div>
-              <header className="border-b border-slate-100 bg-slate-50/90 px-4 py-2">
-                <h2 className="text-sm font-semibold text-slate-900">신청 사유</h2>
-                <p className="text-xs text-slate-500">
-                  ※ 어려움 체크를 중심으로 설명
-                </p>
-              </header>
-              <div className="p-4">
-                <textarea
-                  value={applyReason}
-                  onChange={(e) => setApplyReason(e.target.value)}
-                  rows={4}
-                  className={`${inputCls} min-h-[7rem] w-full resize-y`}
-                />
-              </div>
-            </div>
-            <div>
-              <header className="border-b border-slate-100 bg-slate-50/90 px-4 py-2">
-                <h2 className="text-sm font-semibold text-slate-900">지원 요청 사항</h2>
-              </header>
-              <div className="p-4">
-                <textarea
-                  value={supportRequest}
-                  onChange={(e) => setSupportRequest(e.target.value)}
-                  rows={4}
-                  className={`${inputCls} min-h-[7rem] w-full resize-y`}
-                />
-              </div>
-            </div>
+            {/* 신청 사유 · 지원 요청 (PDF 하단 2열) */}
+            <table className={sheet.table}>
+              <colgroup>
+                <col className="w-[7.15rem] sm:w-[8.35rem]" />
+                <col />
+              </colgroup>
+              <tbody>
+                <tr>
+                  <th className={`${sheet.thReason} align-top`} scope="row">
+                    신청 사유
+                    <p className="mt-1 font-normal text-[10px] leading-snug text-slate-700 sm:text-xs">
+                      ※ 학생의 어려움 체크 항목을 중심으로 설명
+                    </p>
+                  </th>
+                  <td className={sheet.td}>
+                    <textarea
+                      value={applyReason}
+                      onChange={(e) => setApplyReason(e.target.value)}
+                      rows={5}
+                      className={`${areaField} min-h-[6rem]`}
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thReason} scope="row">
+                    지원 요청 사항
+                  </th>
+                  <td className={sheet.td}>
+                    <textarea
+                      value={supportRequest}
+                      onChange={(e) => setSupportRequest(e.target.value)}
+                      rows={5}
+                      className={`${areaField} min-h-[6rem]`}
+                    />
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
-        </section>
 
-        <section className="border border-slate-200 bg-white shadow-sm">
-          <div className="space-y-3 p-4">
-            <p className="text-sm font-medium text-slate-800">
+          <div className="space-y-6 border-t border-slate-900 bg-white px-3 py-8 sm:space-y-7 sm:px-6 sm:py-10">
+            <p className="text-center text-sm font-medium leading-relaxed sm:text-base">
               위 학생을 학생맞춤통합지원 대상 학생으로 신청합니다.
             </p>
-            <div className="flex flex-col gap-3 md:flex-row md:flex-wrap md:items-end md:justify-between">
-              <div className="flex flex-wrap items-end gap-2">
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">년</span>
-                  <input
-                    value={applyYear}
-                    onChange={(e) => setApplyYear(e.target.value)}
-                    placeholder="20"
-                    className={`${inputCls} w-16`}
-                  />
-                </label>
-                <span className="pb-2 text-slate-400">.</span>
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">월</span>
-                  <input
-                    value={applyMonth}
-                    onChange={(e) => setApplyMonth(e.target.value)}
-                    className={`${inputCls} w-14`}
-                  />
-                </label>
-                <span className="pb-2 text-slate-400">.</span>
-                <label className="grid gap-0.5">
-                  <span className="text-xs text-slate-600">일</span>
-                  <input
-                    value={applyDay}
-                    onChange={(e) => setApplyDay(e.target.value)}
-                    className={`${inputCls} w-14`}
-                  />
-                </label>
-              </div>
-              <label className="grid min-w-[12rem] flex-1 gap-0.5 md:max-w-sm">
-                <span className="text-xs font-medium text-slate-600">
-                  신청자 (서명 또는 성명)
+            <div
+              className="flex flex-wrap items-end justify-center gap-x-2 gap-y-1 text-sm sm:gap-x-3 sm:text-base"
+              aria-label="신청 일자"
+            >
+              <span className="pb-0.5 tabular-nums tracking-wider text-slate-900">20</span>
+              <input
+                value={applyYear}
+                onChange={(e) => setApplyYear(e.target.value)}
+                className={`${fieldLine} w-9 sm:w-10`}
+                aria-label="연(끝 두 자리 등)"
+                maxLength={4}
+              />
+              <span className="pb-0.5 text-slate-900">.</span>
+              <input
+                value={applyMonth}
+                onChange={(e) => setApplyMonth(e.target.value)}
+                className={`${fieldLine} w-8 sm:w-9`}
+                aria-label="월"
+                maxLength={2}
+              />
+              <span className="pb-0.5 text-slate-900">.</span>
+              <input
+                value={applyDay}
+                onChange={(e) => setApplyDay(e.target.value)}
+                className={`${fieldLine} w-8 sm:w-9`}
+                aria-label="일"
+                maxLength={2}
+              />
+              <span className="pb-0.5 text-slate-900">.</span>
+            </div>
+            <div className="flex justify-center px-2">
+              <div className="flex w-auto max-w-full items-end justify-center gap-1 sm:gap-1.5">
+                <span className="shrink-0 pb-0.5 text-sm font-medium text-slate-900 sm:text-base">
+                  신청자:
                 </span>
                 <input
                   value={signature}
                   onChange={(e) => setSignature(e.target.value)}
-                  className={inputCls}
+                  className={`${fieldLine} min-h-[1.75rem] w-[9rem] sm:w-[11rem]`}
+                  aria-label="성명(필기)"
                 />
-              </label>
+                <span className="shrink-0 pb-0.5 text-sm text-slate-900 sm:text-base">(서명)</span>
+              </div>
             </div>
-            <p className="text-xs leading-relaxed text-slate-500">
-              ※ 학기초 개인정보의 수집·이용·제공 고지, 일괄 동의 안내 시
-              학생맞춤통합지원도 포함하여 진행
+            <p className="text-center text-[10px] leading-relaxed text-slate-700 sm:text-xs">
+              ※ 학기초 개인정보의 수집･이용･제공 고지, 일괄 동의 안내 시 학생맞춤통합지원도 포함하여 진행
             </p>
           </div>
-        </section>
+        </article>
 
-        <div className="flex flex-wrap items-center gap-2">
+        <div className="flex flex-wrap items-center gap-2 print:hidden">
           <button
             type="button"
             onClick={handleSaveDraft}

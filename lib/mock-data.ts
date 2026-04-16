@@ -25,114 +25,49 @@ export type ManagedStudent = {
  */
 export const managedStudents: ManagedStudent[] = [
   {
-    id: "ms1",
-    name: "김○○",
-    gradeClass: "고1 3반",
-    caseRef: "HMT-2026-0412",
+    id: "ms-hgd-001",
+    name: "홍길동",
+    gradeClass: "3학년 1반",
+    caseRef: "HMT-2026-0414",
     status: "지원중",
-    supportArea: "정서·학업",
-    lastUpdated: "2026-04-03",
-  },
-  {
-    id: "ms2",
-    name: "이○○",
-    gradeClass: "고2 1반",
-    caseRef: "HMT-2026-0398",
-    status: "지원중",
-    supportArea: "학업·출석",
-    lastUpdated: "2026-04-02",
-  },
-  {
-    id: "ms3",
-    name: "박○○",
-    gradeClass: "고1 5반",
-    caseRef: "HMT-2026-0385",
-    status: "관찰",
-    supportArea: "대인·정서",
-    lastUpdated: "2026-04-02",
-  },
-  {
-    id: "ms4",
-    name: "최○○",
-    gradeClass: "고3 2반",
-    caseRef: "HMT-2026-0371",
-    status: "지원중",
-    supportArea: "진로·학업",
-    lastUpdated: "2026-04-01",
-  },
-  {
-    id: "ms5",
-    name: "정○○",
-    gradeClass: "고2 4반",
-    caseRef: "HMT-2026-0360",
-    status: "종결예정",
-    supportArea: "가족·복지연계",
-    lastUpdated: "2026-03-30",
-  },
-  {
-    id: "ms6",
-    name: "한○○",
-    gradeClass: "고1 2반",
-    caseRef: "HMT-2026-0354",
-    status: "관찰",
-    supportArea: "보건·급식",
-    lastUpdated: "2026-04-03",
-  },
-  {
-    id: "ms7",
-    name: "조○○",
-    gradeClass: "고3 6반",
-    caseRef: "HMT-2026-0342",
-    status: "지원중",
-    supportArea: "정서·상담",
-    lastUpdated: "2026-04-02",
-  },
-  {
-    id: "ms8",
-    name: "윤○○",
-    gradeClass: "고2 3반",
-    caseRef: "HMT-2026-0331",
-    status: "지원중",
-    supportArea: "학업",
-    lastUpdated: "2026-03-29",
-  },
-  {
-    id: "ms9",
-    name: "강○○",
-    gradeClass: "고1 1반",
-    caseRef: "HMT-2026-0328",
-    status: "관찰",
-    supportArea: "출석·생활",
-    lastUpdated: "2026-03-28",
-  },
-  {
-    id: "ms10",
-    name: "서○○",
-    gradeClass: "고2 7반",
-    caseRef: "HMT-2026-0315",
-    status: "지원중",
-    supportArea: "정서·가족",
-    lastUpdated: "2026-04-01",
-  },
-  {
-    id: "ms11",
-    name: "임○○",
-    gradeClass: "고3 4반",
-    caseRef: "HMT-2026-0309",
-    status: "지원중",
-    supportArea: "학업·수행",
-    lastUpdated: "2026-03-31",
-  },
-  {
-    id: "ms12",
-    name: "홍○○",
-    gradeClass: "고1 6반",
-    caseRef: "HMT-2026-0301",
-    status: "종결예정",
-    supportArea: "복지연계",
-    lastUpdated: "2026-03-27",
+    supportArea: "학업·정서·돌봄·경제",
+    lastUpdated: "2026-04-14",
   },
 ];
+
+export const studentApplicationDetailsById: Record<string, unknown> = {
+  "ms-hgd-001": {
+    전체데이터: {
+      통합신청서정보: {
+        학생인적사항: {
+          학생이름: "홍길동",
+          학년: 3,
+          반: 1,
+          생년월일: "2015-05-20",
+          성별: "남",
+        },
+        가정환경및자격: {
+          학생기본사항: "부모님과 동거 중",
+          기초수급보장현황: "차상위계층",
+          가족현황: "부, 모, 여동생",
+        },
+        학생상태: {
+          학생현황: "교우관계 원만하나 수업 집중력 부족",
+          학생어려움: {
+            학업: "기초 학력 미달 및 수업 참여 저조",
+            심리_정서: "감정 조절에 어려움을 겪으며 불안 증세 보임",
+            돌봄_안전_건강: "방과 후 보호자 부재로 인한 돌봄 공백",
+            경제_생활: "체험학습비 등 교육비 납부 지연",
+            기타: "특이사항 없음",
+          },
+        },
+        신청사유:
+          "교내 다수 교사의 관찰 결과 공통적으로 정서적 불안 및 돌발 행동이 포착되어 통합 지원 신청함",
+        지원요청사항: "전문 상담 및 방과 후 학습 지원 연계",
+      },
+    },
+  },
+};
 
 /** 통합지원신청 — AI(목업) 추천 제도·기관 */
 export type SupportRecommendation = {
@@ -339,7 +274,28 @@ export const notifications = [
 
 /** (구) 부서별 협업 알림: 호환용 alias */
 export const collaborationFeed = notifications;
-export type ObservationRole = "담임" | "상담" | "보건" | "교감실" | "총괄";
+export type ObservationRole =
+  | "담임"
+  | "교과전담"
+  | "상담"
+  | "보건"
+  | "교감실"
+  | "총괄";
+
+/** 상담·관찰 일지 태그 선택지(목업) */
+export const observationTagOptions = [
+  "출석",
+  "정서",
+  "과제",
+  "관찰",
+  "상담",
+  "급식",
+  "건강",
+  "가족",
+  "대인",
+  "학업",
+  "기타",
+] as const;
 
 export type ObservationEntry = {
   id: string;
@@ -351,70 +307,11 @@ export type ObservationEntry = {
   tags?: string[];
 };
 
-export const initialObservations: ObservationEntry[] = [
-  {
-    id: "o1",
-    role: "담임",
-    author: "이○○",
-    visibility: "public",
-    content:
-      "최근 수업 참여도가 낮고 과제 제출이 두 차례 누락되었습니다. 친구 관계 질문 시 회피하는 모습이 관찰됩니다.",
-    createdAt: "2026-04-02 14:20",
-    tags: ["출석", "과제"],
-  },
-  {
-    id: "o2",
-    role: "상담",
-    author: "박○○",
-    visibility: "public",
-    content:
-      "개별 면담에서 가족 갈등 언급. 정서적으로 불안해 보이며 긍정적 자기 진술이 어려운 상태입니다.",
-    createdAt: "2026-04-02 16:05",
-    tags: ["정서", "가족"],
-  },
-  {
-    id: "o3",
-    role: "보건",
-    author: "최○○",
-    visibility: "public",
-    content:
-      "점심 급식 섭취량 감소(2주 지속). 두통 호소 1회. 수면 시간 부족 가능성 안내.",
-    createdAt: "2026-04-03 09:10",
-    tags: ["급식", "건강"],
-  },
-];
-
 /** 학생별 관찰 및 상담 일지(목업) — 명단 행 클릭 시 표시 */
 export const observationsByStudentId: Record<string, ObservationEntry[]> = {};
 
 managedStudents.forEach((s) => {
-  if (s.id === "ms1") {
-    observationsByStudentId[s.id] = initialObservations.map((o) => ({
-      ...o,
-      id: `${s.id}-${o.id}`,
-    }));
-    return;
-  }
-  observationsByStudentId[s.id] = [
-    {
-      id: `${s.id}-o1`,
-      role: "담임",
-      author: "이○○",
-      visibility: "public",
-      content: `${s.name} 학생: 출석·수업 참여 관찰 메모(목업). ${s.gradeClass}`,
-      createdAt: "2026-04-02 09:15",
-      tags: ["관찰", "출석"],
-    },
-    {
-      id: `${s.id}-o2`,
-      role: "상담",
-      author: "박○○",
-      visibility: "public",
-      content: `${s.name} 학생 정기 면담 기록(목업). 사례 ${s.caseRef}`,
-      createdAt: "2026-03-28 16:00",
-      tags: ["상담"],
-    },
-  ];
+  observationsByStudentId[s.id] = [];
 });
 
 export function getObservationsForStudent(studentId: string): ObservationEntry[] {

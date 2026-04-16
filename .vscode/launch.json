@@ -1,0 +1,11 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "editor-browser",
+      "request": "launch",
+      "name": "미리보기: localhost:3000",
+      "url": "http://localhost:3000"
+    }
+  ]
+}

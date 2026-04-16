@@ -5,6 +5,8 @@ import { useMemo, useState } from "react";
 import {
   getObservationsForStudent,
   managedStudents,
+  observationTagOptions,
+  studentApplicationDetailsById,
   type ManagedStudent,
   type ObservationEntry,
   type ObservationRole,
@@ -69,7 +71,22 @@ function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
   );
 }
 
-export function ManagedStudentsWithTabs() {
+function DetailRow({ label, value }: { label: string; value?: string | number }) {
+  return (
+    <div className="grid grid-cols-[9rem_1fr] gap-2 border-b border-slate-100 py-1.5 text-xs sm:text-sm">
+      <dt className="font-medium text-slate-600">{label}</dt>
+      <dd className="text-slate-800">{value ?? "-"}</dd>
+    </div>
+  );
+}
+
+export function ManagedStudentsWithTabs({
+  onStudentSelect,
+  hideInternalJournal = false,
+}: {
+  onStudentSelect?: (studentId: string | null) => void;
+  hideInternalJournal?: boolean;
+}) {
   const currentUser = useMemo(
     () =>
       ({
@@ -96,12 +113,18 @@ export function ManagedStudentsWithTabs() {
     return seed;
   });
 
-  const [draftContent, setDraftContent] = useState("");
-  const [draftTags, setDraftTags] = useState("");
+  const counselTemplate = useMemo(
+    () => `상담 장소: \n\n내용: \n\n특이사항: `,
+    [],
+  );
+  const [draftContent, setDraftContent] = useState(counselTemplate);
+  const [draftTag, setDraftTag] = useState("");
   const [draftVisibility, setDraftVisibility] = useState<
     ObservationEntry["visibility"]
   >("public");
   function openStudentJournal(studentId: string) {
+    onStudentSelect?.(studentId);
+    if (hideInternalJournal) return;
     setOpenJournalIds((prev) =>
       prev.includes(studentId) ? prev : [...prev, studentId],
     );
@@ -111,16 +134,36 @@ export function ManagedStudentsWithTabs() {
   function closeJournalTab(studentId: string, e: React.MouseEvent) {
     e.stopPropagation();
     setOpenJournalIds((prev) => prev.filter((id) => id !== studentId));
-    setActiveTab((cur) => {
-      if (cur !== studentId) return cur;
-      return "list";
-    });
+    if (activeTab === studentId) {
+      setActiveTab("list");
+      onStudentSelect?.(null);
+    }
   }
 
   const activeStudent =
     activeTab !== "list" ? studentById[activeTab] : undefined;
   const activeObservations =
     activeTab !== "list" ? (observationsByStudent[activeTab] ?? []) : [];
+  const activeStudentApplicationJson =
+    activeTab !== "list" ? studentApplicationDetailsById[activeTab] : undefined;
+  const activeApplicationInfo =
+    (activeStudentApplicationJson as
+      | {
+          전체데이터?: {
+            통합신청서정보?: {
+              학생인적사항?: Record<string, string | number>;
+              가정환경및자격?: Record<string, string>;
+              학생상태?: {
+                학생현황?: string;
+                학생어려움?: Record<string, string>;
+              };
+              신청사유?: string;
+              지원요청사항?: string;
+            };
+          };
+        }
+      | undefined)?.전체데이터?.통합신청서정보;
+  const useExternalJournalPanel = Boolean(onStudentSelect);
 
   const tabBarBg = "bg-[#dde6f0]";
 
@@ -132,16 +175,20 @@ export function ManagedStudentsWithTabs() {
 
   return (
     <section className="overflow-hidden border border-slate-300/80 bg-white">
-      <div
-        className={`flex flex-nowrap items-end gap-1 overflow-x-auto overflow-y-visible px-1 pt-1 pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${tabBarBg}`}
-        role="tablist"
-        aria-label="관리 학생 및 관찰 및 상담 일지"
-      >
+      {!hideInternalJournal && (
+        <div
+          className={`flex flex-nowrap items-end gap-1 overflow-x-auto overflow-y-visible px-1 pt-1 pb-0 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden ${tabBarBg}`}
+          role="tablist"
+          aria-label="관리 학생 및 관찰 및 상담 일지"
+        >
         <button
           type="button"
           role="tab"
           aria-selected={activeTab === "list"}
-          onClick={() => setActiveTab("list")}
+          onClick={() => {
+            setActiveTab("list");
+            onStudentSelect?.(null);
+          }}
           className={`relative z-[1] ${tabBase} ${
             activeTab === "list"
               ? "-mb-px rounded-b-xl border-b border-white bg-white font-semibold text-slate-900 ring-offset-white"
@@ -168,7 +215,10 @@ export function ManagedStudentsWithTabs() {
                 type="button"
                 role="tab"
                 aria-selected={selected}
-                onClick={() => setActiveTab(sid)}
+                onClick={() => {
+                  setActiveTab(sid);
+                  onStudentSelect?.(sid);
+                }}
                 className={`flex min-w-0 flex-1 items-center truncate px-3.5 py-2 text-left text-sm leading-snug transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/45 focus-visible:ring-inset ${
                   selected ? "font-semibold text-slate-900" : ""
                 }`}
@@ -190,10 +240,11 @@ export function ManagedStudentsWithTabs() {
             </div>
           );
         })}
-      </div>
+        </div>
+      )}
 
       <div className="-mt-px bg-white" role="tabpanel">
-        {activeTab === "list" ? (
+        {hideInternalJournal || activeTab === "list" ? (
           <>
             <div className="border-b border-slate-100 px-5 py-3">
               <p className="text-xs text-slate-500">
@@ -270,105 +321,164 @@ export function ManagedStudentsWithTabs() {
                   관찰 및 상담 일지 · 공동 작성(목업)
                 </p>
               </div>
-              <div className="border-b border-slate-100 px-5 py-4">
-                <form
-                  className="grid gap-3"
-                  onSubmit={(e) => {
-                    e.preventDefault();
-                    if (!activeStudent) return;
-                    const content = draftContent.trim();
-                    if (!content) return;
+              {activeApplicationInfo && (
+                <div className="border-b border-slate-100 bg-slate-50/60 px-5 py-4">
+                  <div className="grid gap-3 lg:grid-cols-2">
+                    <section className="rounded-md border border-slate-200 bg-white p-3">
+                      <h3 className="text-xs font-semibold text-slate-700">기본 정보</h3>
+                      <dl className="mt-1">
+                        <DetailRow label="학생 이름" value={activeApplicationInfo.학생인적사항?.학생이름} />
+                        <DetailRow
+                          label="학년/반"
+                          value={`${activeApplicationInfo.학생인적사항?.학년 ?? "-"}학년 ${activeApplicationInfo.학생인적사항?.반 ?? "-"}반`}
+                        />
+                        <DetailRow label="성별" value={activeApplicationInfo.학생인적사항?.성별} />
+                        <DetailRow label="생년월일" value={activeApplicationInfo.학생인적사항?.생년월일} />
+                        <DetailRow
+                          label="기초수급보장현황"
+                          value={activeApplicationInfo.가정환경및자격?.기초수급보장현황}
+                        />
+                        <DetailRow label="학생 기본사항" value={activeApplicationInfo.가정환경및자격?.학생기본사항} />
+                        <DetailRow label="가족현황" value={activeApplicationInfo.가정환경및자격?.가족현황} />
+                        <DetailRow label="학생현황" value={activeApplicationInfo.학생상태?.학생현황} />
+                      </dl>
+                    </section>
 
-                    const tags = draftTags
-                      .split(/[,\n]/g)
-                      .map((t) => t.trim())
-                      .filter(Boolean);
-
-                    const entry: ObservationEntry = {
-                      id: `${activeStudent.id}-${Date.now()}`,
-                      role: currentUser.role,
-                      author: currentUser.author,
-                      visibility: draftVisibility,
-                      content,
-                      createdAt: nowTimestamp(),
-                      tags: tags.length ? tags : undefined,
-                    };
-
-                    setObservationsByStudent((prev) => ({
-                      ...prev,
-                      [activeStudent.id]: [entry, ...(prev[activeStudent.id] ?? [])],
-                    }));
-                    setDraftContent("");
-                    setDraftTags("");
-                    setDraftVisibility("public");
-                  }}
-                >
-                  <div className="grid gap-3 sm:grid-cols-12 sm:items-end">
-                    <label className="grid gap-1 sm:col-span-7">
-                      <span className="text-xs font-medium text-slate-600">
-                        태그(선택)
-                      </span>
-                      <input
-                        value={draftTags}
-                        onChange={(e) => setDraftTags(e.target.value)}
-                        placeholder="예: 출석, 과제, 정서"
-                        className="h-10 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#003876]/35"
-                      />
-                    </label>
-
-                    <fieldset className="grid gap-1 sm:col-span-5">
-                      <legend className="text-xs font-medium text-slate-600">
-                        공개 범위
-                      </legend>
-                      <div className="flex h-10 items-center gap-4 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm">
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="visibility"
-                            value="public"
-                            checked={draftVisibility === "public"}
-                            onChange={() => setDraftVisibility("public")}
-                          />
-                          <span>공개</span>
-                        </label>
-                        <label className="flex items-center gap-2">
-                          <input
-                            type="radio"
-                            name="visibility"
-                            value="private"
-                            checked={draftVisibility === "private"}
-                            onChange={() => setDraftVisibility("private")}
-                          />
-                          <span>비공개</span>
-                        </label>
-                      </div>
-                    </fieldset>
+                    <section className="rounded-md border border-slate-200 bg-white p-3">
+                      <h3 className="text-xs font-semibold text-slate-700">주요 어려움</h3>
+                      <dl className="mt-1">
+                        <DetailRow label="학업" value={activeApplicationInfo.학생상태?.학생어려움?.학업} />
+                        <DetailRow label="심리·정서" value={activeApplicationInfo.학생상태?.학생어려움?.심리_정서} />
+                        <DetailRow label="돌봄·안전·건강" value={activeApplicationInfo.학생상태?.학생어려움?.돌봄_안전_건강} />
+                        <DetailRow label="경제·생활" value={activeApplicationInfo.학생상태?.학생어려움?.경제_생활} />
+                        <DetailRow label="기타" value={activeApplicationInfo.학생상태?.학생어려움?.기타} />
+                      </dl>
+                    </section>
                   </div>
 
-                  <label className="grid gap-1">
-                    <span className="text-xs font-medium text-slate-600">
-                      관찰 내용
-                    </span>
-                    <textarea
-                      value={draftContent}
-                      onChange={(e) => setDraftContent(e.target.value)}
-                      rows={4}
-                      placeholder="여러 담당자가 함께 참고할 수 있도록 사실/맥락/요청사항을 간단히 남겨주세요."
-                      className="resize-y rounded-md border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#003876]/35"
-                    />
-                  </label>
+                  <div className="mt-3 grid gap-3 lg:grid-cols-2">
+                    <section className="rounded-md border border-slate-200 bg-white p-3">
+                      <h3 className="text-xs font-semibold text-slate-700">신청 사유</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                        {activeApplicationInfo.신청사유 ?? "-"}
+                      </p>
+                    </section>
+                    <section className="rounded-md border border-slate-200 bg-white p-3">
+                      <h3 className="text-xs font-semibold text-slate-700">지원 요청 사항</h3>
+                      <p className="mt-1 text-xs leading-relaxed text-slate-700 sm:text-sm">
+                        {activeApplicationInfo.지원요청사항 ?? "-"}
+                      </p>
+                    </section>
+                  </div>
+                </div>
+              )}
+              {!useExternalJournalPanel && (
+                <>
+                  <div className="border-b border-slate-100 px-5 py-4">
+                    <form
+                      className="grid gap-3"
+                      onSubmit={(e) => {
+                        e.preventDefault();
+                        if (!activeStudent) return;
+                        const content = draftContent.trim();
+                        if (!content) return;
 
-                  <div className="flex items-center justify-end">
-                    <button
-                      type="submit"
-                      className="h-10 rounded-md bg-[#003876] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#002c5d]"
+                        const tags = draftTag ? [draftTag] : [];
+
+                        const entry: ObservationEntry = {
+                          id: `${activeStudent.id}-${Date.now()}`,
+                          role: currentUser.role,
+                          author: currentUser.author,
+                          visibility: draftVisibility,
+                          content,
+                          createdAt: nowTimestamp(),
+                          tags: tags.length ? tags : undefined,
+                        };
+
+                        setObservationsByStudent((prev) => ({
+                          ...prev,
+                          [activeStudent.id]: [entry, ...(prev[activeStudent.id] ?? [])],
+                        }));
+                        setDraftContent(counselTemplate);
+                        setDraftTag("");
+                        setDraftVisibility("public");
+                      }}
                     >
-                      관찰 및 상담 일지 등록
-                    </button>
+                      <div className="grid gap-3 sm:grid-cols-12 sm:items-end">
+                        <label className="grid gap-1 sm:col-span-7">
+                          <span className="text-xs font-medium text-slate-600">
+                            태그(선택)
+                          </span>
+                          <select
+                            value={draftTag}
+                            onChange={(e) => setDraftTag(e.target.value)}
+                            aria-label="태그 선택"
+                            className="h-10 w-full rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/35"
+                          >
+                            <option value="">태그 선택</option>
+                            {observationTagOptions.map((opt) => (
+                              <option key={opt} value={opt}>
+                                {opt}
+                              </option>
+                            ))}
+                          </select>
+                        </label>
+
+                        <fieldset className="grid gap-1 sm:col-span-5">
+                          <legend className="text-xs font-medium text-slate-600">
+                            공개 범위
+                          </legend>
+                          <div className="flex h-10 items-center gap-4 rounded-md border border-slate-200 bg-white px-3 text-sm text-slate-800 shadow-sm">
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="visibility"
+                                value="public"
+                                checked={draftVisibility === "public"}
+                                onChange={() => setDraftVisibility("public")}
+                              />
+                              <span>공개</span>
+                            </label>
+                            <label className="flex items-center gap-2">
+                              <input
+                                type="radio"
+                                name="visibility"
+                                value="private"
+                                checked={draftVisibility === "private"}
+                                onChange={() => setDraftVisibility("private")}
+                              />
+                              <span>비공개</span>
+                            </label>
+                          </div>
+                        </fieldset>
+                      </div>
+
+                      <label className="grid gap-1">
+                        <span className="text-xs font-medium text-slate-600">
+                          관찰 내용
+                        </span>
+                        <textarea
+                          value={draftContent}
+                          onChange={(e) => setDraftContent(e.target.value)}
+                          rows={7}
+                          placeholder={`상담 장소/내용/특이사항을 입력해 주세요.\n\n${counselTemplate}`}
+                          className="min-h-[220px] resize-y rounded-md border border-slate-200 bg-white px-3 py-2 text-sm leading-relaxed text-slate-800 shadow-sm outline-none placeholder:text-slate-400 focus-visible:ring-2 focus-visible:ring-[#003876]/35"
+                        />
+                      </label>
+
+                      <div className="flex items-center justify-end">
+                        <button
+                          type="submit"
+                          className="h-10 rounded-md bg-[#003876] px-4 text-sm font-semibold text-white shadow-sm hover:bg-[#002c5d]"
+                        >
+                          관찰 및 상담 일지 등록
+                        </button>
+                      </div>
+                    </form>
                   </div>
-                </form>
-              </div>
-              <ObservationTimeline items={activeObservations} />
+                  <ObservationTimeline items={activeObservations} />
+                </>
+              )}
             </>
           )
         )}
