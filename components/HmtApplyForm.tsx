@@ -1,6 +1,5 @@
 "use client";
 
-import Link from "next/link";
 import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
 
 type CheckState = Record<string, boolean>;
@@ -681,12 +680,6 @@ export function HmtApplyForm() {
           >
             신청서 미리보기
           </button>
-          <Link
-            href="/exchange"
-            className="ml-auto text-sm text-[#003876] underline underline-offset-2 hover:text-[#002d5c]"
-          >
-            AI 추천·일지(통합지원신청)
-          </Link>
         </div>
       </form>
 

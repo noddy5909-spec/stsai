@@ -3,12 +3,13 @@
 import { ChevronDown } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
-  getAiApplyMockData,
-  getObservationsForStudent,
-  managedStudents,
-  type AiRecommendationMockItem,
-  type ManagedStudent,
-} from "@/lib/mock-data";
+  ANALYZE_STUDENT_API_URL,
+  buildAnalyzeStudentPayload,
+  parseAnalyzeStudentResponse,
+  type StudentAnalyzeRecommendation,
+  type StudentAnalyzeResult,
+} from "@/lib/analyze-student-payload";
+import { managedStudents, type ManagedStudent } from "@/lib/mock-data";
 
 function statusTextClass(status: ManagedStudent["status"]) {
   switch (status) {
@@ -32,6 +33,9 @@ export function ExchangeClient() {
   const [listOpen, setListOpen] = useState(false);
   const [screenMode, setScreenMode] = useState<"idle" | "apply">("idle");
   const [openRecommendationKey, setOpenRecommendationKey] = useState<string | null>(null);
+  const [applyLoading, setApplyLoading] = useState(false);
+  const [applyApiError, setApplyApiError] = useState<string | null>(null);
+  const [apiApplyData, setApiApplyData] = useState<StudentAnalyzeResult | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const selectedStudent = useMemo(
@@ -39,12 +43,13 @@ export function ExchangeClient() {
     [selectedId],
   );
 
-  const applyMockData = useMemo(
-    () => (selectedStudent ? getAiApplyMockData(selectedStudent.id) : null),
-    [selectedStudent],
-  );
-  const recommendations = applyMockData?.ai_추천기관_제도 ?? [];
-  const aiSummary = applyMockData?.ai_분석정리_요약;
+  const recommendations = apiApplyData?.ai_추천기관_제도 ?? [];
+  const aiSummary = apiApplyData?.ai_분석정리_요약;
+
+  useEffect(() => {
+    setApiApplyData(null);
+    setApplyApiError(null);
+  }, [selectedId]);
 
   useEffect(() => {
     if (!listOpen) return;
@@ -56,6 +61,52 @@ export function ExchangeClient() {
     document.addEventListener("mousedown", onDoc);
     return () => document.removeEventListener("mousedown", onDoc);
   }, [listOpen]);
+
+  async function handleIntegratedApply() {
+    if (!selectedStudent) return;
+    setOpenRecommendationKey(null);
+    setApplyApiError(null);
+    setApplyLoading(true);
+    try {
+      const body = buildAnalyzeStudentPayload(selectedStudent.id);
+      const res = await fetch(ANALYZE_STUDENT_API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(body),
+      });
+      const text = await res.text();
+      let json: unknown;
+      try {
+        json = text ? JSON.parse(text) : null;
+      } catch {
+        json = null;
+      }
+      if (!res.ok) {
+        setApplyApiError(
+          typeof json === "object" && json && "message" in json
+            ? String((json as { message: unknown }).message)
+            : `요청 실패 (${res.status})`,
+        );
+        setApiApplyData(null);
+      } else {
+        const parsed = parseAnalyzeStudentResponse(json);
+        if (parsed) {
+          setApiApplyData(parsed);
+        } else {
+          setApiApplyData(null);
+          setApplyApiError(
+            "API 응답 형식이 올바르지 않습니다. ai_분석정리_요약·ai_추천기관_제도 구조를 확인해 주세요.",
+          );
+        }
+      }
+    } catch (e) {
+      setApiApplyData(null);
+      setApplyApiError(e instanceof Error ? e.message : "네트워크 오류");
+    } finally {
+      setApplyLoading(false);
+      setScreenMode("apply");
+    }
+  }
 
   return (
     <div className="space-y-6 py-4">
@@ -158,14 +209,11 @@ export function ExchangeClient() {
 
           <button
             type="button"
-            onClick={() => {
-              setOpenRecommendationKey(null);
-              setScreenMode("apply");
-            }}
-            disabled={!selectedStudent}
+            onClick={() => void handleIntegratedApply()}
+            disabled={!selectedStudent || applyLoading}
             className="h-[58px] shrink-0 border border-[#003876] bg-[#003876] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#002d5c] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500"
           >
-            통합 신청
+            {applyLoading ? "요청 중…" : "통합 신청"}
           </button>
         </div>
       </div>
@@ -174,6 +222,16 @@ export function ExchangeClient() {
         {selectedStudent ? (
           screenMode === "apply" ? (
             <div className="space-y-4" aria-live="polite">
+              {applyApiError ? (
+                <p
+                  role="alert"
+                  className="rounded-sm border border-amber-200 bg-amber-50 px-4 py-3 text-sm text-amber-950"
+                >
+                  분석 API: {applyApiError}
+                </p>
+              ) : null}
+              {apiApplyData ? (
+                <>
               <section
                 className="overflow-hidden border border-slate-300/80 bg-white"
                 aria-label="AI 분석 정리 요약"
@@ -206,7 +264,7 @@ export function ExchangeClient() {
                 </div>
 
                 <ul className="divide-y divide-slate-100 px-5 py-4">
-                  {recommendations.map((rec, index) => {
+                  {recommendations.map((rec: StudentAnalyzeRecommendation, index: number) => {
                     const recKey = `${rec.구분}-${rec.기관명}-${index}`;
                     const isOpen = openRecommendationKey === recKey;
                     return (
@@ -286,6 +344,12 @@ export function ExchangeClient() {
                   })}
                 </ul>
               </section>
+                </>
+              ) : !applyApiError ? (
+                <p className="rounded-sm border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
+                  표시할 분석 결과가 없습니다. 통합 신청을 다시 시도해 주세요.
+                </p>
+              ) : null}
             </div>
           ) : (
             <section
