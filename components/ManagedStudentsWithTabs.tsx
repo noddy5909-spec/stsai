@@ -7,6 +7,7 @@ import {
   managedStudentSummaryLine,
   managedStudents,
   observationTagOptions,
+  splitGradeClassDisplay,
   studentApplicationDetailsById,
   type ManagedStudent,
   type ObservationEntry,
@@ -33,6 +34,7 @@ function nowTimestamp() {
   const pad = (n: number) => String(n).padStart(2, "0");
   return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())} ${pad(d.getHours())}:${pad(d.getMinutes())}`;
 }
+
 function ObservationTimeline({ items }: { items: ObservationEntry[] }) {
   if (items.length === 0) {
     return (
@@ -258,7 +260,8 @@ export function ManagedStudentsWithTabs({
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
                     <th className="px-5 py-3">이름</th>
-                    <th className="px-5 py-3">학년·반</th>
+                    <th className="px-5 py-3">학년</th>
+                    <th className="px-5 py-3">반</th>
                     <th className="px-5 py-3">사례번호</th>
                     <th className="px-5 py-3">지원영역</th>
                     <th className="px-5 py-3">상태</th>
@@ -267,6 +270,7 @@ export function ManagedStudentsWithTabs({
                 </thead>
                 <tbody className="divide-y divide-slate-100">
                   {managedStudents.map((row) => {
+                    const { gradeLabel, classLabel } = splitGradeClassDisplay(row.gradeClass);
                     return (
                       <tr
                         key={row.id}
@@ -284,9 +288,8 @@ export function ManagedStudentsWithTabs({
                         <td className="px-5 py-3 font-medium text-slate-900">
                           {row.name}
                         </td>
-                        <td className="px-5 py-3 text-slate-600">
-                          {row.gradeClass}
-                        </td>
+                        <td className="px-5 py-3 text-slate-600">{gradeLabel}</td>
+                        <td className="px-5 py-3 text-slate-600">{classLabel}</td>
                         <td className="px-5 py-3 font-mono text-xs text-slate-700">
                           {row.caseRef}
                         </td>
@@ -331,8 +334,20 @@ export function ManagedStudentsWithTabs({
                       <dl className="mt-1">
                         <DetailRow label="학생 이름" value={activeApplicationInfo.학생인적사항?.학생이름} />
                         <DetailRow
-                          label="학년/반"
-                          value={`${activeApplicationInfo.학생인적사항?.학년 ?? "-"}학년 ${activeApplicationInfo.학생인적사항?.반 ?? "-"}반`}
+                          label="학년"
+                          value={
+                            activeApplicationInfo.학생인적사항?.학년 != null
+                              ? `${activeApplicationInfo.학생인적사항.학년}학년`
+                              : "—"
+                          }
+                        />
+                        <DetailRow
+                          label="반"
+                          value={
+                            activeApplicationInfo.학생인적사항?.반 != null
+                              ? `${activeApplicationInfo.학생인적사항.반}반`
+                              : "—"
+                          }
                         />
                         <DetailRow label="성별" value={activeApplicationInfo.학생인적사항?.성별} />
                         <DetailRow label="생년월일" value={activeApplicationInfo.학생인적사항?.생년월일} />

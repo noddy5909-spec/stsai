@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown } from "lucide-react";
+import { ChevronDown, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ANALYZE_STUDENT_API_URL,
@@ -359,6 +359,35 @@ export function ExchangeClient() {
           </section>
         )}
       </div>
+
+      {applyLoading ? (
+        <div
+          className="fixed inset-0 z-[200] flex items-center justify-center bg-slate-900/45 p-4 backdrop-blur-[2px]"
+          role="status"
+          aria-live="polite"
+          aria-busy="true"
+          aria-labelledby="exchange-loading-title"
+        >
+          <div className="w-full max-w-sm rounded-lg border border-slate-200 bg-white px-8 py-10 shadow-xl">
+            <Loader2
+              className="mx-auto size-11 animate-spin text-[#003876]"
+              strokeWidth={2}
+              aria-hidden
+            />
+            <p
+              id="exchange-loading-title"
+              className="mt-5 text-center text-base font-semibold text-slate-900"
+            >
+              통합 지원 분석 중
+            </p>
+            <p className="mt-2 text-center text-sm leading-relaxed text-slate-600">
+              서버에서 학생 정보를 분석하고 있습니다.
+              <br />
+              잠시만 기다려 주세요…
+            </p>
+          </div>
+        </div>
+      ) : null}
     </div>
   );
 }

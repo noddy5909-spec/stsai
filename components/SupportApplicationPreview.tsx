@@ -2,13 +2,15 @@
 
 import { useMemo } from "react";
 import { jsPDF } from "jspdf";
-import { adminDocSummary, focusStudent } from "@/lib/mock-data";
+import { adminDocSummary, focusStudent, splitGradeClassDisplay } from "@/lib/mock-data";
 
 export function SupportApplicationPreview() {
   const previewBody = useMemo(() => {
+    const { gradeLabel, classLabel } = splitGradeClassDisplay(focusStudent.gradeClass);
     return [
       `성명: ${focusStudent.name}`,
-      `학년·반: ${focusStudent.gradeClass}`,
+      `학년: ${gradeLabel}`,
+      `반: ${classLabel}`,
       `학번(일부): ${focusStudent.studentIdMasked}`,
       `사례번호: ${focusStudent.caseRef}`,
       "",

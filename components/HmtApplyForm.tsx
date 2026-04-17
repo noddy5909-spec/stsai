@@ -163,7 +163,8 @@ export function HmtApplyForm() {
   const [relationToStudent, setRelationToStudent] = useState("");
 
   const [studentName, setStudentName] = useState("");
-  const [gradeClass, setGradeClass] = useState("");
+  const [gradeYear, setGradeYear] = useState("");
+  const [classRoom, setClassRoom] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<"" | "male" | "female">("");
   const [phoneStudent, setPhoneStudent] = useState("");
@@ -296,20 +297,35 @@ export function HmtApplyForm() {
                     />
                   </td>
                   <th className={sheet.thTop} scope="row">
-                    학년/반
+                    학년
                   </th>
                   <td className={sheet.td}>
                     <input
-                      value={gradeClass}
-                      onChange={(e) => setGradeClass(e.target.value)}
-                      placeholder="예: 고1 3반"
+                      value={gradeYear}
+                      onChange={(e) => setGradeYear(e.target.value)}
+                      placeholder="예: 고1"
                       className={fieldLine}
+                      aria-label="학년"
                     />
                   </td>
                   <th className={sheet.thTop} scope="row">
-                    생년월일
+                    반
                   </th>
                   <td className={sheet.td}>
+                    <input
+                      value={classRoom}
+                      onChange={(e) => setClassRoom(e.target.value)}
+                      placeholder="예: 3"
+                      className={fieldLine}
+                      aria-label="반"
+                    />
+                  </td>
+                </tr>
+                <tr>
+                  <th className={sheet.thTop} scope="row">
+                    생년월일
+                  </th>
+                  <td className={sheet.td} colSpan={5}>
                     <input
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
@@ -714,8 +730,14 @@ export function HmtApplyForm() {
               <div>
                 <dt className="text-xs font-semibold text-slate-500">학생</dt>
                 <dd className="text-slate-800">
-                  {studentName || "—"} · {gradeClass || "—"} · {birthDate || "—"} ·{" "}
-                  {gender === "male" ? "남" : gender === "female" ? "여" : "—"}
+                  {studentName || "—"} ·{" "}
+                  {(() => {
+                    const g = gradeYear.trim();
+                    const c = classRoom.trim();
+                    if (!g && !c) return "—";
+                    return [g ? `${g}학년` : null, c ? `${c}반` : null].filter(Boolean).join(" ");
+                  })()}{" "}
+                  · {birthDate || "—"} · {gender === "male" ? "남" : gender === "female" ? "여" : "—"}
                 </dd>
               </div>
               <div>

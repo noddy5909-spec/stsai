@@ -50,6 +50,17 @@ export function managedStudentSummaryLine(s: ManagedStudent): string {
   return `${s.gradeClass} · ${s.caseRef} · ${s.supportArea} · 최근 갱신 ${s.lastUpdated}`;
 }
 
+/** `3학년 1반` 등 `…학년 …반` 형태를 표시용 학년·반 문자열로 분리 */
+export function splitGradeClassDisplay(gradeClass: string): {
+  gradeLabel: string;
+  classLabel: string;
+} {
+  const s = gradeClass.trim();
+  const m = s.match(/^(.+)\s+(\d+)\s*반\s*$/);
+  if (m) return { gradeLabel: m[1].trim(), classLabel: `${m[2]}반` };
+  return { gradeLabel: s || "—", classLabel: "—" };
+}
+
 export const studentApplicationDetailsById: Record<string, unknown> = {
   "ms-hgd-001": {
     전체데이터: {
