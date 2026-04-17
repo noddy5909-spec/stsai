@@ -9,7 +9,11 @@ import {
   type StudentAnalyzeRecommendation,
   type StudentAnalyzeResult,
 } from "@/lib/analyze-student-payload";
-import { managedStudents, type ManagedStudent } from "@/lib/mock-data";
+import {
+  managedStudentSummaryLine,
+  managedStudents,
+  type ManagedStudent,
+} from "@/lib/mock-data";
 
 function statusTextClass(status: ManagedStudent["status"]) {
   switch (status) {
@@ -22,10 +26,6 @@ function statusTextClass(status: ManagedStudent["status"]) {
     default:
       return "text-slate-600";
   }
-}
-
-function studentSummaryLine(s: ManagedStudent) {
-  return `${s.gradeClass} · ${s.caseRef} · ${s.supportArea} · 최근 갱신 ${s.lastUpdated}`;
 }
 
 export function ExchangeClient() {
@@ -66,6 +66,7 @@ export function ExchangeClient() {
     if (!selectedStudent) return;
     setOpenRecommendationKey(null);
     setApplyApiError(null);
+    setApiApplyData(null);
     setApplyLoading(true);
     try {
       const body = buildAnalyzeStudentPayload(selectedStudent.id);
@@ -101,7 +102,7 @@ export function ExchangeClient() {
       }
     } catch (e) {
       setApiApplyData(null);
-      setApplyApiError(e instanceof Error ? e.message : "네트워크 오류");
+      setApplyApiError(e instanceof Error ? e.message : "요청 처리 오류");
     } finally {
       setApplyLoading(false);
       setScreenMode("apply");
@@ -111,9 +112,7 @@ export function ExchangeClient() {
   return (
     <div className="space-y-6 py-4">
       <div className="space-y-3">
-        <h1 className="text-xl font-bold leading-tight text-[#003876]">
-          통합지원신청
-        </h1>
+        <h1 className="text-xl font-bold leading-tight text-[#003876]">통합지원신청</h1>
 
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch">
           <div ref={rootRef} className="relative min-w-0 flex-1">
@@ -133,9 +132,7 @@ export function ExchangeClient() {
                 {selectedStudent ? (
                   <>
                     <span className="flex flex-wrap items-baseline gap-x-2 gap-y-0">
-                      <span className="font-semibold text-slate-900">
-                        {selectedStudent.name}
-                      </span>
+                      <span className="font-semibold text-slate-900">{selectedStudent.name}</span>
                       <span
                         className={`text-xs font-medium ${statusTextClass(selectedStudent.status)}`}
                       >
@@ -143,16 +140,14 @@ export function ExchangeClient() {
                       </span>
                     </span>
                     <span className="mt-0.5 block truncate text-xs leading-snug text-slate-600">
-                      {studentSummaryLine(selectedStudent)}
+                      {managedStudentSummaryLine(selectedStudent)}
                     </span>
                   </>
                 ) : (
                   <>
-                    <span className="block font-semibold text-slate-500">
-                      학생을 선택하세요…
-                    </span>
+                    <span className="block font-semibold text-slate-500">학생을 선택하세요…</span>
                     <span className="mt-0.5 block truncate text-xs leading-snug text-slate-400">
-                      선택 후 학생 정보가 표시됩니다.
+                      관리 학생 명단과 동일한 목록입니다.
                     </span>
                   </>
                 )}
@@ -183,20 +178,14 @@ export function ExchangeClient() {
                           setScreenMode("idle");
                         }}
                         className={`flex w-full flex-col items-stretch gap-0.5 px-3 py-2 text-left text-sm transition-colors ${
-                          isSelected
-                            ? "bg-[#f0f4fa] text-slate-900"
-                            : "hover:bg-slate-50"
+                          isSelected ? "bg-[#f0f4fa] text-slate-900" : "hover:bg-slate-50"
                         }`}
                       >
-                        <span className="font-semibold text-slate-900">
-                          {s.name}
-                        </span>
+                        <span className="font-semibold text-slate-900">{s.name}</span>
                         <span className="break-words text-xs leading-snug text-slate-600">
-                          {studentSummaryLine(s)}
+                          {managedStudentSummaryLine(s)}
                         </span>
-                        <span
-                          className={`text-xs font-medium ${statusTextClass(s.status)}`}
-                        >
+                        <span className={`text-xs font-medium ${statusTextClass(s.status)}`}>
                           상태 · {s.status}
                         </span>
                       </button>
@@ -232,118 +221,110 @@ export function ExchangeClient() {
               ) : null}
               {apiApplyData ? (
                 <>
-              <section
-                className="overflow-hidden border border-slate-300/80 bg-white"
-                aria-label="AI 분석 정리 요약"
-              >
-                <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    AI 분석·정리 요약
-                  </h2>
-                </div>
+                  <section
+                    className="overflow-hidden border border-slate-300/80 bg-white"
+                    aria-label="AI 분석 정리 요약"
+                  >
+                    <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
+                      <h2 className="text-sm font-semibold text-slate-900">AI 분석·정리 요약</h2>
+                    </div>
 
-                <div className="space-y-3 px-5 py-4">
-                  <p className="text-sm text-slate-800">이름: {aiSummary?.이름}</p>
-                  <p className="text-sm leading-relaxed text-slate-800">
-                    {aiSummary?.요약분석}
-                  </p>
-                  <p className="text-xs text-slate-600">
-                    핵심신호: {aiSummary?.핵심신호.join(" · ")}
-                  </p>
-                </div>
-              </section>
+                    <div className="space-y-3 px-5 py-4">
+                      <p className="text-sm text-slate-800">이름: {aiSummary?.이름}</p>
+                      <p className="text-sm leading-relaxed text-slate-800">{aiSummary?.요약분석}</p>
+                      <p className="text-xs text-slate-600">
+                        핵심신호: {aiSummary?.핵심신호.join(" · ")}
+                      </p>
+                    </div>
+                  </section>
 
-              <section
-                className="overflow-hidden border border-slate-300/80 bg-white"
-                aria-label="AI 추천 제도 및 기관"
-              >
-                <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                  <h2 className="text-sm font-semibold text-slate-900">
-                    AI 추천 제도·기관
-                  </h2>
-                </div>
+                  <section
+                    className="overflow-hidden border border-slate-300/80 bg-white"
+                    aria-label="AI 추천 제도 및 기관"
+                  >
+                    <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
+                      <h2 className="text-sm font-semibold text-slate-900">AI 추천 제도·기관</h2>
+                    </div>
 
-                <ul className="divide-y divide-slate-100 px-5 py-4">
-                  {recommendations.map((rec: StudentAnalyzeRecommendation, index: number) => {
-                    const recKey = `${rec.구분}-${rec.기관명}-${index}`;
-                    const isOpen = openRecommendationKey === recKey;
-                    return (
-                      <li key={recKey} className="py-3 first:pt-0 last:pb-0">
-                        <button
-                          type="button"
-                          onClick={() =>
-                            setOpenRecommendationKey((prev) =>
-                              prev === recKey ? null : recKey,
-                            )
-                          }
-                          className="flex w-full items-start justify-between gap-3 rounded-sm p-1 -m-1 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/35"
-                          aria-expanded={isOpen}
-                          aria-controls={`recommendation-panel-${index}`}
-                        >
-                          <div className="min-w-0">
-                            <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                              <span
-                                className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                                  rec.구분 === "제도"
-                                    ? "bg-violet-100 text-violet-800"
-                                    : "bg-emerald-100 text-emerald-800"
+                    <ul className="divide-y divide-slate-100 px-5 py-4">
+                      {recommendations.map((rec: StudentAnalyzeRecommendation, index: number) => {
+                        const recKey = `${rec.구분}-${rec.기관명}-${index}`;
+                        const isOpen = openRecommendationKey === recKey;
+                        return (
+                          <li key={recKey} className="py-3 first:pt-0 last:pb-0">
+                            <button
+                              type="button"
+                              onClick={() =>
+                                setOpenRecommendationKey((prev) =>
+                                  prev === recKey ? null : recKey,
+                                )
+                              }
+                              className="flex w-full items-start justify-between gap-3 rounded-sm p-1 -m-1 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/35"
+                              aria-expanded={isOpen}
+                              aria-controls={`recommendation-panel-${index}`}
+                            >
+                              <div className="min-w-0">
+                                <div className="flex flex-wrap items-center gap-2 gap-y-1">
+                                  <span
+                                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
+                                      rec.구분 === "제도"
+                                        ? "bg-violet-100 text-violet-800"
+                                        : "bg-emerald-100 text-emerald-800"
+                                    }`}
+                                  >
+                                    {rec.구분}
+                                  </span>
+                                  <span className="text-xs font-medium text-slate-500">
+                                    적합도 {rec.적합도}
+                                  </span>
+                                </div>
+                                <p className="mt-2 text-sm font-medium text-slate-900">{rec.기관명}</p>
+                                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
+                                  {rec.기관설명}
+                                </p>
+                              </div>
+                              <ChevronDown
+                                className={`mt-1 size-4 shrink-0 text-slate-500 transition-transform duration-300 ${
+                                  isOpen ? "rotate-180" : ""
                                 }`}
-                              >
-                                {rec.구분}
-                              </span>
-                              <span className="text-xs font-medium text-slate-500">
-                                적합도 {rec.적합도}
-                              </span>
-                            </div>
-                            <p className="mt-2 text-sm font-medium text-slate-900">
-                              {rec.기관명}
-                            </p>
-                            <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
-                              {rec.기관설명}
-                            </p>
-                          </div>
-                          <ChevronDown
-                            className={`mt-1 size-4 shrink-0 text-slate-500 transition-transform duration-300 ${
-                              isOpen ? "rotate-180" : ""
-                            }`}
-                            aria-hidden
-                          />
-                        </button>
+                                aria-hidden
+                              />
+                            </button>
 
-                        <div
-                          id={`recommendation-panel-${index}`}
-                          className={`grid overflow-hidden transition-all duration-300 ease-out ${
-                            isOpen ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                          }`}
-                        >
-                          <section className="min-h-0 space-y-2 border border-slate-200 bg-slate-50/60 p-4">
-                            <p className="text-sm text-slate-700">대상: {rec.대상}</p>
-                            <p className="text-xs font-semibold text-slate-600">지원 내용</p>
-                            <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                              {rec.지원내용.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
-                            <p className="text-xs font-semibold text-slate-600">신청 절차</p>
-                            <ol className="list-decimal space-y-1 pl-5 text-sm text-slate-700">
-                              {rec.신청절차.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ol>
-                            <p className="text-xs font-semibold text-slate-600">필요 서류</p>
-                            <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                              {rec.필요서류.map((item) => (
-                                <li key={item}>{item}</li>
-                              ))}
-                            </ul>
-                            <p className="text-sm text-slate-700">문의: {rec.문의}</p>
-                          </section>
-                        </div>
-                      </li>
-                    );
-                  })}
-                </ul>
-              </section>
+                            <div
+                              id={`recommendation-panel-${index}`}
+                              className={`grid overflow-hidden transition-all duration-300 ease-out ${
+                                isOpen ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
+                              }`}
+                            >
+                              <section className="min-h-0 space-y-2 border border-slate-200 bg-slate-50/60 p-4">
+                                <p className="text-sm text-slate-700">대상: {rec.대상}</p>
+                                <p className="text-xs font-semibold text-slate-600">지원 내용</p>
+                                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                                  {rec.지원내용.map((item) => (
+                                    <li key={item}>{item}</li>
+                                  ))}
+                                </ul>
+                                <p className="text-xs font-semibold text-slate-600">신청 절차</p>
+                                <ol className="list-decimal space-y-1 pl-5 text-sm text-slate-700">
+                                  {rec.신청절차.map((item) => (
+                                    <li key={item}>{item}</li>
+                                  ))}
+                                </ol>
+                                <p className="text-xs font-semibold text-slate-600">필요 서류</p>
+                                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
+                                  {rec.필요서류.map((item) => (
+                                    <li key={item}>{item}</li>
+                                  ))}
+                                </ul>
+                                <p className="text-sm text-slate-700">문의: {rec.문의}</p>
+                              </section>
+                            </div>
+                          </li>
+                        );
+                      })}
+                    </ul>
+                  </section>
                 </>
               ) : !applyApiError ? (
                 <p className="rounded-sm border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
@@ -357,10 +338,10 @@ export function ExchangeClient() {
               aria-label="통합 신청 안내"
             >
               <p className="mt-4 text-sm font-medium text-slate-600">
-                학생을 선택하고 우측 통합 신청 버튼을 눌러주세요.
+                학생을 선택한 뒤 우측 통합 신청을 눌러주세요.
               </p>
               <p className="mt-1.5 max-w-sm text-xs text-slate-500">
-                클릭하면 AI 분석·정리 요약과 AI 추천 제도·기관이 함께 표시됩니다.
+                요청 본문은 대시보드 관리 학생과 동일한 통합신청서·관찰 일지(목업)에서 가져옵니다.
               </p>
             </section>
           )
@@ -370,10 +351,10 @@ export function ExchangeClient() {
             aria-label="추천 안내"
           >
             <p className="mt-4 text-sm font-medium text-slate-600">
-              학생을 선택하고 우측 통합 신청 버튼을 눌러주세요.
+              위 목록에서 학생을 선택한 뒤 통합 신청을 눌러주세요.
             </p>
             <p className="mt-1.5 max-w-sm text-xs text-slate-500">
-              클릭하면 AI 분석·정리 요약과 AI 추천 제도·기관이 함께 표시됩니다.
+              명단은 대시보드「관리 학생 명단」과 동일한 데이터입니다.
             </p>
           </section>
         )}

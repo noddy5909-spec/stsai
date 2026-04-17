@@ -4,6 +4,7 @@ import { X } from "lucide-react";
 import { useMemo, useState } from "react";
 import {
   getObservationsForStudent,
+  managedStudentSummaryLine,
   managedStudents,
   observationTagOptions,
   studentApplicationDetailsById,
@@ -269,6 +270,7 @@ export function ManagedStudentsWithTabs({
                     return (
                       <tr
                         key={row.id}
+                        title={managedStudentSummaryLine(row)}
                         tabIndex={0}
                         onClick={() => openStudentJournal(row.id)}
                         onKeyDown={(e) => {

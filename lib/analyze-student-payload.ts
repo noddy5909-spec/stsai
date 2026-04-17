@@ -54,7 +54,7 @@ function normalizeTimePart(raw: string | undefined): string {
   return "00:00:00";
 }
 
-/** 목업 관찰 일지 텍스트를 API 스키마 행으로 변환 */
+/** 관리 학생 관찰 일지(목업)를 분석 API 스키마 행으로 변환 — `getObservationsForStudent`와 동일 소스 */
 export function mapObservationToJournalRow(o: ObservationEntry): AnalyzeStudentJournalRow {
   const created = o.createdAt.trim();
   const [datePart, timePartRaw] = /\s/.test(created)
@@ -82,8 +82,8 @@ export function mapObservationToJournalRow(o: ObservationEntry): AnalyzeStudentJ
 }
 
 /**
- * `POST /api/analyze-student` 요청 본문.
- * `studentApplicationDetailsById`의 통합신청서정보 + 관찰일지목록을 합칩니다.
+ * 통합 신청 시 API로 보낼 요청 본문.
+ * `managedStudents`의 `id`와 동일 키로 `studentApplicationDetailsById`·관찰 일지를 조회합니다.
  */
 export function buildAnalyzeStudentPayload(studentId: string): Record<string, unknown> {
   const base = studentApplicationDetailsById[studentId] as

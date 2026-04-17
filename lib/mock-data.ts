@@ -21,7 +21,8 @@ export type ManagedStudent = {
 
 /**
  * 담당(관리) 학생 명단 — 목업.
- * 대시보드 `ManagedStudentsWithTabs`와 통합지원신청 `ExchangeClient`가 동일 배열을 사용합니다.
+ * 대시보드 `ManagedStudentsWithTabs`·통합지원신청 `ExchangeClient`가 동일 배열을 쓰며,
+ * 통합 신청 요청 본문은 `studentApplicationDetailsById`·`getObservationsForStudent(id)`와 항상 같은 `id`로 맞춥니다.
  */
 export const managedStudents: ManagedStudent[] = [
   {
@@ -43,6 +44,11 @@ export const managedStudents: ManagedStudent[] = [
     lastUpdated: "2026-04-16",
   },
 ];
+
+/** 관리 학생 명단과 동일한 한 줄 요약(통합지원신청 선택 UI 등 공용) */
+export function managedStudentSummaryLine(s: ManagedStudent): string {
+  return `${s.gradeClass} · ${s.caseRef} · ${s.supportArea} · 최근 갱신 ${s.lastUpdated}`;
+}
 
 export const studentApplicationDetailsById: Record<string, unknown> = {
   "ms-hgd-001": {
@@ -109,7 +115,6 @@ export const studentApplicationDetailsById: Record<string, unknown> = {
   },
 };
 
-/** 통합지원신청 — AI(목업) 추천 제도·기관 */
 export type SupportRecommendation = {
   id: string;
   category: "제도" | "기관";
@@ -117,126 +122,6 @@ export type SupportRecommendation = {
   rationale: string;
   confidencePercent: number;
 };
-
-export type AiSummaryMockData = {
-  이름: string;
-  요약분석: string;
-  핵심신호: string[];
-};
-
-export type AiRecommendationMockItem = {
-  구분: "제도" | "기관";
-  기관명: string;
-  적합도: string;
-  기관설명: string;
-  대상: string;
-  지원내용: string[];
-  신청절차: string[];
-  필요서류: string[];
-  문의: string;
-};
-
-export type AiApplyMockData = {
-  ai_분석정리_요약: AiSummaryMockData;
-  ai_추천기관_제도: AiRecommendationMockItem[];
-};
-
-const DEFAULT_AI_APPLY_MOCK_DATA: AiApplyMockData = {
-  ai_분석정리_요약: {
-    이름: "홍길동",
-    요약분석:
-      "API 사용량 제한으로 AI 모델 호출이 지연되어, 입력 데이터 기반의 안전 분석 결과를 제공합니다. 홍길동 학생은 기초 학력 미달 및 수업 참여 저조 상태이며, 감정 조절에 어려움을 겪으며 불안 증세 보임. 또한 방과 후 보호자 부재로 인한 돌봄 공백 상황으로 확인되어 학습·정서·돌봄 영역의 통합 지원 연계가 필요합니다.",
-    핵심신호: ["기초 학력 미달", "정서 불안", "돌봄 공백", "등교", "직후부터"],
-  },
-  ai_추천기관_제도: [
-    {
-      구분: "제도",
-      기관명: "기초학력 디딤학습 바우처",
-      적합도: "63%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 제도 연계 정보",
-      대상: "기초 학력 미달 또는 학습 결손이 확인된 초등학생",
-      지원내용: ["방과", "학습코칭 비용 월 20만원 한도 지원"],
-      신청절차: ["온라인 신청", "학교 확인 절차"],
-      필요서류: ["학생생활기록 요약", "진단평가 결과지", "신분증 사본"],
-      문의: "교육청 콜센터 1588-3000",
-    },
-    {
-      구분: "기관",
-      기관명: "우리동네 긴급돌봄센터",
-      적합도: "61%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 기관 연계 정보",
-      대상: "방과 후 보호 공백이 발생하는 맞벌이 및 취약가정 학생",
-      지원내용: ["평일 13시-20시 긴급 돌봄", "간식 지원"],
-      신청절차: ["주민센터 또는 학교 복지담당 연계 신청"],
-      필요서류: ["돌봄 공백 확인서", "가족관계증명서"],
-      문의: "동주민센터 120",
-    },
-    {
-      구분: "기관",
-      기관명: "마음성장 아동청소년 상담센터",
-      적합도: "60%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 기관 연계 정보",
-      대상: "정서 불안 및 행동 조절 어려움이 있는 초중학생",
-      지원내용: ["주 1회 전문 심리상담", "부모 코칭 8회기 제공"],
-      신청절차: ["학교 추천서 접수", "초기면접 진행"],
-      필요서류: ["통합신청서", "보호자 동의서", "학교의견서"],
-      문의: "02-1111-2222",
-    },
-  ],
-};
-
-const LJE_AI_APPLY_MOCK_DATA: AiApplyMockData = {
-  ai_분석정리_요약: {
-    이름: "이지은",
-    요약분석:
-      "API 사용량 제한으로 AI 모델 호출이 지연되어, 입력 데이터 기반의 안전 분석 결과를 제공합니다. 이지은 학생은 읽기 및 쓰기 속도가 현저히 느리며 과제 수행 미완료 상태이며, 또래의 사소한 농담에 과하게 반응하며 감정 기복이 심함. 또한 계절에 맞지 않는 의복 착용 및 위생 상태(세탁, 세면) 불량 상황으로 확인되어 학습·정서·돌봄 영역의 통합 지원 연계가 필요합니다.",
-    핵심신호: ["기초 학력 미달", "정서 불안", "돌봄 공백", "가정", "아침"],
-  },
-  ai_추천기관_제도: [
-    {
-      구분: "제도",
-      기관명: "기초학력 디딤학습 바우처",
-      적합도: "62%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 제도 연계 정보",
-      대상: "기초 학력 미달 또는 학습 결손이 확인된 초등학생",
-      지원내용: ["방과", "학습코칭 비용 월 20만원 한도 지원"],
-      신청절차: ["온라인 신청", "학교 확인 절차"],
-      필요서류: ["학생생활기록 요약", "진단평가 결과지", "신분증 사본"],
-      문의: "교육청 콜센터 1588-3000",
-    },
-    {
-      구분: "기관",
-      기관명: "우리동네 긴급돌봄센터",
-      적합도: "60%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 기관 연계 정보",
-      대상: "방과 후 보호 공백이 발생하는 맞벌이 및 취약가정 학생",
-      지원내용: ["평일 13시-20시 긴급 돌봄", "간식 지원"],
-      신청절차: ["주민센터 또는 학교 복지담당 연계 신청"],
-      필요서류: ["돌봄 공백 확인서", "가족관계증명서"],
-      문의: "동주민센터 120",
-    },
-    {
-      구분: "기관",
-      기관명: "마음성장 아동청소년 상담센터",
-      적합도: "59%",
-      기관설명: "지역 기관 안내 데이터 기반으로 학생 특성과 연관성이 높은 기관 연계 정보",
-      대상: "정서 불안 및 행동 조절 어려움이 있는 초중학생",
-      지원내용: ["주 1회 전문 심리상담", "부모 코칭 8회기 제공"],
-      신청절차: ["학교 추천서 접수", "초기면접 진행"],
-      필요서류: ["통합신청서", "보호자 동의서", "학교의견서"],
-      문의: "02-1111-2222",
-    },
-  ],
-};
-
-const aiApplyMockDataByStudentId: Record<string, AiApplyMockData> = {
-  "ms-hgd-001": DEFAULT_AI_APPLY_MOCK_DATA,
-  "ms-lje-002": LJE_AI_APPLY_MOCK_DATA,
-};
-
-export function getAiApplyMockData(studentId: string): AiApplyMockData {
-  return aiApplyMockDataByStudentId[studentId] ?? DEFAULT_AI_APPLY_MOCK_DATA;
-}
 
 type RecDef = {
   id: string;
