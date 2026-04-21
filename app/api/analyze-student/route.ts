@@ -3,7 +3,7 @@ import { NextResponse } from "next/server";
 /** 외부 분석 API (서버에서만 사용). 클라이언트는 `/api/analyze-student`로만 호출합니다. */
 const UPSTREAM_URL =
   process.env.ANALYZE_STUDENT_UPSTREAM_URL ??
-  "https://yards-nathan-cove-understand.trycloudflare.com/api/analyze-student";
+  "https://easy123.vercel.app/api/analyze-student";
 
 export async function POST(req: Request) {
   let body: unknown;

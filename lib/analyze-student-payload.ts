@@ -11,16 +11,23 @@ export type StudentAnalyzeSummary = {
   핵심신호: string[];
 };
 
+/** `ai_추천기관_제도` 항목 — 복지 통합 데이터(`welfare_integrated_data.csv`) 스키마와 동일 키 */
 export type StudentAnalyzeRecommendation = {
-  구분: "제도" | "기관";
-  기관명: string;
-  적합도: string;
-  기관설명: string;
-  대상: string;
-  지원내용: string[];
-  신청절차: string[];
-  필요서류: string[];
-  문의: string;
+  category: string;
+  suitability: number | null;
+  welfareType: string;
+  servId: string;
+  servNm: string;
+  agency: string;
+  department: string;
+  intrsThemaArray: string[];
+  lifeArray: string[];
+  srvPvsnNm: string;
+  sprtCycNm: string;
+  servDgst: string;
+  servDtlLink: string;
+  inqNum: number | null;
+  contact: string | null;
 };
 
 export type StudentAnalyzeResult = {
@@ -121,6 +128,35 @@ function asStringList(v: unknown): string[] | null {
   return out;
 }
 
+function asOptionalFiniteNumber(v: unknown): number | null {
+  if (typeof v === "number" && Number.isFinite(v)) return v;
+  if (typeof v === "string" && v.trim()) {
+    const n = Number(v.trim());
+    if (Number.isFinite(n)) return n;
+  }
+  return null;
+}
+
+function asWelfareStringField(v: unknown): string {
+  return typeof v === "string" ? v.trim() : "";
+}
+
+function asWelfareStringArray(v: unknown): string[] {
+  if (!Array.isArray(v)) return [];
+  const out: string[] = [];
+  for (const item of v) {
+    if (typeof item === "string" && item.trim()) out.push(item.trim());
+  }
+  return out;
+}
+
+function asNullableContact(v: unknown): string | null {
+  if (v == null) return null;
+  if (typeof v !== "string") return null;
+  const s = v.trim();
+  return s.length ? s : null;
+}
+
 function parseSummary(raw: unknown): StudentAnalyzeSummary | null {
   if (!raw || typeof raw !== "object") return null;
   const s = raw as Record<string, unknown>;
@@ -134,29 +170,27 @@ function parseSummary(raw: unknown): StudentAnalyzeSummary | null {
 function parseRecommendation(raw: unknown): StudentAnalyzeRecommendation | null {
   if (!raw || typeof raw !== "object") return null;
   const r = raw as Record<string, unknown>;
-  const 구분 = r.구분;
-  if (구분 !== "제도" && 구분 !== "기관") return null;
-  const 기관명 = asTrimmedString(r.기관명);
-  const 적합도 = asTrimmedString(r.적합도);
-  const 기관설명 = asTrimmedString(r.기관설명);
-  const 대상 = asTrimmedString(r.대상);
-  const 문의 = asTrimmedString(r.문의);
-  const 지원내용 = asStringList(r.지원내용);
-  const 신청절차 = asStringList(r.신청절차);
-  const 필요서류 = asStringList(r.필요서류);
-  if (!기관명 || !적합도 || !기관설명 || !대상 || !문의 || !지원내용 || !신청절차 || !필요서류) {
-    return null;
-  }
+
+  const category = asWelfareStringField(r.category);
+  const servNm = asWelfareStringField(r.servNm);
+  if (!category || !servNm) return null;
+
   return {
-    구분,
-    기관명,
-    적합도,
-    기관설명,
-    대상,
-    지원내용,
-    신청절차,
-    필요서류,
-    문의,
+    category,
+    suitability: asOptionalFiniteNumber(r.suitability),
+    welfareType: asWelfareStringField(r.welfareType),
+    servId: asWelfareStringField(r.servId),
+    servNm,
+    agency: asWelfareStringField(r.agency),
+    department: asWelfareStringField(r.department),
+    intrsThemaArray: asWelfareStringArray(r.intrsThemaArray),
+    lifeArray: asWelfareStringArray(r.lifeArray),
+    srvPvsnNm: asWelfareStringField(r.srvPvsnNm),
+    sprtCycNm: asWelfareStringField(r.sprtCycNm),
+    servDgst: asWelfareStringField(r.servDgst),
+    servDtlLink: asWelfareStringField(r.servDtlLink),
+    inqNum: asOptionalFiniteNumber(r.inqNum),
+    contact: asNullableContact(r.contact),
   };
 }
 

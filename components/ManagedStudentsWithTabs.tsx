@@ -256,14 +256,12 @@ export function ManagedStudentsWithTabs({
               </p>
             </div>
             <div className="overflow-x-auto">
-              <table className="w-full min-w-[640px] text-left text-sm">
+              <table className="w-full min-w-[480px] text-left text-sm">
                 <thead>
                   <tr className="border-b border-slate-200 text-xs font-medium text-slate-500">
                     <th className="px-5 py-3">이름</th>
                     <th className="px-5 py-3">학년</th>
                     <th className="px-5 py-3">반</th>
-                    <th className="px-5 py-3">사례번호</th>
-                    <th className="px-5 py-3">지원영역</th>
                     <th className="px-5 py-3">상태</th>
                     <th className="px-5 py-3">최근 갱신</th>
                   </tr>
@@ -290,12 +288,6 @@ export function ManagedStudentsWithTabs({
                         </td>
                         <td className="px-5 py-3 text-slate-600">{gradeLabel}</td>
                         <td className="px-5 py-3 text-slate-600">{classLabel}</td>
-                        <td className="px-5 py-3 font-mono text-xs text-slate-700">
-                          {row.caseRef}
-                        </td>
-                        <td className="px-5 py-3 text-slate-600">
-                          {row.supportArea}
-                        </td>
                         <td
                           className={`px-5 py-3 text-xs font-medium ${statusTextClass(row.status)}`}
                         >
@@ -319,7 +311,7 @@ export function ManagedStudentsWithTabs({
                   {activeStudent.name}
                   <span className="font-normal text-slate-500">
                     {" "}
-                    · {activeStudent.gradeClass} · {activeStudent.caseRef}
+                    · {activeStudent.gradeClass}
                   </span>
                 </p>
                 <p className="mt-1 text-xs text-slate-500">

@@ -16,7 +16,7 @@ export default function AnalyzePage() {
       <section className="border border-slate-200 bg-white p-5">
         <h2 className="text-sm font-semibold text-slate-900">분석 대상</h2>
         <p className="mt-1 text-sm text-slate-600">
-          {focusStudent.name} · {focusStudent.gradeClass} · {focusStudent.caseRef}
+          {focusStudent.name} · {focusStudent.gradeClass}
         </p>
       </section>
 

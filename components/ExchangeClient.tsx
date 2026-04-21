@@ -32,7 +32,6 @@ export function ExchangeClient() {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [listOpen, setListOpen] = useState(false);
   const [screenMode, setScreenMode] = useState<"idle" | "apply">("idle");
-  const [openRecommendationKey, setOpenRecommendationKey] = useState<string | null>(null);
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyApiError, setApplyApiError] = useState<string | null>(null);
   const [apiApplyData, setApiApplyData] = useState<StudentAnalyzeResult | null>(null);
@@ -64,7 +63,6 @@ export function ExchangeClient() {
 
   async function handleIntegratedApply() {
     if (!selectedStudent) return;
-    setOpenRecommendationKey(null);
     setApplyApiError(null);
     setApiApplyData(null);
     setApplyLoading(true);
@@ -226,15 +224,46 @@ export function ExchangeClient() {
                     aria-label="AI 분석 정리 요약"
                   >
                     <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                      <h2 className="text-sm font-semibold text-slate-900">AI 분석·정리 요약</h2>
+                      <h2 className="text-sm font-semibold text-slate-900">
+                        ai_분석정리_요약
+                      </h2>
+                      <p className="mt-0.5 text-[11px] text-slate-500">
+                        이름 · 요약분석 · 핵심신호
+                      </p>
                     </div>
 
-                    <div className="space-y-3 px-5 py-4">
-                      <p className="text-sm text-slate-800">이름: {aiSummary?.이름}</p>
-                      <p className="text-sm leading-relaxed text-slate-800">{aiSummary?.요약분석}</p>
-                      <p className="text-xs text-slate-600">
-                        핵심신호: {aiSummary?.핵심신호.join(" · ")}
-                      </p>
+                    <div className="space-y-5 px-5 py-5">
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          이름
+                        </p>
+                        <p className="mt-1 text-lg font-semibold text-slate-900">
+                          {aiSummary?.이름}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          요약분석
+                        </p>
+                        <p className="mt-1.5 text-sm leading-relaxed text-slate-800">
+                          {aiSummary?.요약분석}
+                        </p>
+                      </div>
+                      <div>
+                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
+                          핵심신호
+                        </p>
+                        <ul className="mt-2 flex flex-wrap gap-2" aria-label="핵심신호 목록">
+                          {(aiSummary?.핵심신호 ?? []).map((signal) => (
+                            <li
+                              key={signal}
+                              className="rounded-full border border-[#003876]/25 bg-[#f0f4fa] px-3 py-1 text-xs font-medium text-[#003876]"
+                            >
+                              {signal}
+                            </li>
+                          ))}
+                        </ul>
+                      </div>
                     </div>
                   </section>
 
@@ -243,83 +272,184 @@ export function ExchangeClient() {
                     aria-label="AI 추천 제도 및 기관"
                   >
                     <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                      <h2 className="text-sm font-semibold text-slate-900">AI 추천 제도·기관</h2>
+                      <h2 className="text-sm font-semibold text-slate-900">
+                        ai_추천기관_제도
+                      </h2>
+                      <p className="mt-0.5 text-[11px] text-slate-500">
+                        복지 통합 스키마 필드 순서와 동일하게 표시합니다.
+                      </p>
                     </div>
 
-                    <ul className="divide-y divide-slate-100 px-5 py-4">
+                    <ul className="space-y-4 px-5 py-5">
                       {recommendations.map((rec: StudentAnalyzeRecommendation, index: number) => {
-                        const recKey = `${rec.구분}-${rec.기관명}-${index}`;
-                        const isOpen = openRecommendationKey === recKey;
+                        const recKey = `${rec.servId || "no-id"}-${index}`;
+                        const isInstitution =
+                          rec.category.includes("기관") || rec.welfareType.includes("기관");
                         return (
-                          <li key={recKey} className="py-3 first:pt-0 last:pb-0">
-                            <button
-                              type="button"
-                              onClick={() =>
-                                setOpenRecommendationKey((prev) =>
-                                  prev === recKey ? null : recKey,
-                                )
-                              }
-                              className="flex w-full items-start justify-between gap-3 rounded-sm p-1 -m-1 text-left transition-colors hover:bg-slate-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/35"
-                              aria-expanded={isOpen}
-                              aria-controls={`recommendation-panel-${index}`}
-                            >
-                              <div className="min-w-0">
-                                <div className="flex flex-wrap items-center gap-2 gap-y-1">
-                                  <span
-                                    className={`rounded px-1.5 py-0.5 text-[10px] font-semibold ${
-                                      rec.구분 === "제도"
-                                        ? "bg-violet-100 text-violet-800"
-                                        : "bg-emerald-100 text-emerald-800"
-                                    }`}
-                                  >
-                                    {rec.구분}
-                                  </span>
-                                  <span className="text-xs font-medium text-slate-500">
-                                    적합도 {rec.적합도}
-                                  </span>
-                                </div>
-                                <p className="mt-2 text-sm font-medium text-slate-900">{rec.기관명}</p>
-                                <p className="mt-1.5 text-sm leading-relaxed text-slate-600">
-                                  {rec.기관설명}
-                                </p>
-                              </div>
-                              <ChevronDown
-                                className={`mt-1 size-4 shrink-0 text-slate-500 transition-transform duration-300 ${
-                                  isOpen ? "rotate-180" : ""
+                          <li
+                            key={recKey}
+                            className="rounded-lg border border-slate-200 bg-slate-50/40 p-4 shadow-sm"
+                          >
+                            <p className="text-[10px] font-medium text-slate-400">
+                              항목 {index + 1} / {recommendations.length}
+                            </p>
+                            <div className="mt-2 flex flex-wrap items-center gap-2">
+                              <span
+                                className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
+                                  isInstitution
+                                    ? "bg-emerald-100 text-emerald-900"
+                                    : "bg-violet-100 text-violet-900"
                                 }`}
-                                aria-hidden
-                              />
-                            </button>
-
-                            <div
-                              id={`recommendation-panel-${index}`}
-                              className={`grid overflow-hidden transition-all duration-300 ease-out ${
-                                isOpen ? "mt-3 grid-rows-[1fr] opacity-100" : "grid-rows-[0fr] opacity-0"
-                              }`}
-                            >
-                              <section className="min-h-0 space-y-2 border border-slate-200 bg-slate-50/60 p-4">
-                                <p className="text-sm text-slate-700">대상: {rec.대상}</p>
-                                <p className="text-xs font-semibold text-slate-600">지원 내용</p>
-                                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                                  {rec.지원내용.map((item) => (
-                                    <li key={item}>{item}</li>
-                                  ))}
-                                </ul>
-                                <p className="text-xs font-semibold text-slate-600">신청 절차</p>
-                                <ol className="list-decimal space-y-1 pl-5 text-sm text-slate-700">
-                                  {rec.신청절차.map((item) => (
-                                    <li key={item}>{item}</li>
-                                  ))}
-                                </ol>
-                                <p className="text-xs font-semibold text-slate-600">필요 서류</p>
-                                <ul className="list-disc space-y-1 pl-5 text-sm text-slate-700">
-                                  {rec.필요서류.map((item) => (
-                                    <li key={item}>{item}</li>
-                                  ))}
-                                </ul>
-                                <p className="text-sm text-slate-700">문의: {rec.문의}</p>
-                              </section>
+                              >
+                                category: {rec.category}
+                              </span>
+                              <span className="rounded bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200">
+                                welfareType: {rec.welfareType || "—"}
+                              </span>
+                              {rec.suitability != null ? (
+                                <span className="rounded bg-[#003876] px-2 py-0.5 text-[11px] font-semibold text-white">
+                                  suitability: {rec.suitability}
+                                </span>
+                              ) : (
+                                <span className="rounded bg-slate-200 px-2 py-0.5 text-[11px] text-slate-600">
+                                  suitability: —
+                                </span>
+                              )}
                             </div>
+
+                            <dl className="mt-4 space-y-3 text-sm text-slate-800">
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  servId
+                                </dt>
+                                <dd className="break-all font-mono text-xs text-slate-900">
+                                  {rec.servId || "—"}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  servNm
+                                </dt>
+                                <dd className="text-base font-semibold leading-snug text-slate-900">
+                                  {rec.servNm}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  agency
+                                </dt>
+                                <dd>{rec.agency || "—"}</dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  department
+                                </dt>
+                                <dd className="leading-relaxed">{rec.department || "—"}</dd>
+                              </div>
+                              <div className="grid gap-1.5 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="pt-0.5 font-mono text-[11px] font-semibold text-slate-500">
+                                  intrsThemaArray
+                                </dt>
+                                <dd>
+                                  {rec.intrsThemaArray.length ? (
+                                    <ul className="flex flex-wrap gap-1.5">
+                                      {rec.intrsThemaArray.map((t) => (
+                                        <li
+                                          key={t}
+                                          className="rounded-md bg-white px-2 py-0.5 text-xs text-slate-700 ring-1 ring-slate-200"
+                                        >
+                                          {t}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    "—"
+                                  )}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1.5 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="pt-0.5 font-mono text-[11px] font-semibold text-slate-500">
+                                  lifeArray
+                                </dt>
+                                <dd>
+                                  {rec.lifeArray.length ? (
+                                    <ul className="flex flex-wrap gap-1.5">
+                                      {rec.lifeArray.map((t) => (
+                                        <li
+                                          key={t}
+                                          className="rounded-md bg-amber-50 px-2 py-0.5 text-xs text-amber-950 ring-1 ring-amber-200/80"
+                                        >
+                                          {t}
+                                        </li>
+                                      ))}
+                                    </ul>
+                                  ) : (
+                                    "—"
+                                  )}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  srvPvsnNm
+                                </dt>
+                                <dd>{rec.srvPvsnNm || "—"}</dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  sprtCycNm
+                                </dt>
+                                <dd>{rec.sprtCycNm || "—"}</dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  servDgst
+                                </dt>
+                                <dd className="leading-relaxed text-slate-700">
+                                  {rec.servDgst || "—"}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  servDtlLink
+                                </dt>
+                                <dd className="min-w-0 break-all">
+                                  {rec.servDtlLink ? (
+                                    <a
+                                      href={rec.servDtlLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="text-[#003876] underline underline-offset-2 hover:text-[#002d5c]"
+                                    >
+                                      {rec.servDtlLink}
+                                    </a>
+                                  ) : (
+                                    "—"
+                                  )}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  inqNum
+                                </dt>
+                                <dd className="font-mono text-xs">
+                                  {rec.inqNum != null ? String(rec.inqNum) : "—"}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
+                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
+                                  contact
+                                </dt>
+                                <dd className="break-all">
+                                  {rec.contact === null ? (
+                                    <span className="text-slate-400">null</span>
+                                  ) : rec.contact === "" ? (
+                                    "—"
+                                  ) : (
+                                    rec.contact
+                                  )}
+                                </dd>
+                              </div>
+                            </dl>
                           </li>
                         );
                       })}

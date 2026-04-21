@@ -4,7 +4,6 @@ export const focusStudent = {
   name: "김○○",
   gradeClass: "고등학교 1학년 3반",
   studentIdMasked: "20**-**34",
-  caseRef: "HMT-2026-0412",
 };
 
 export type ManagedStudentStatus = "지원중" | "관찰" | "종결예정";
@@ -13,9 +12,7 @@ export type ManagedStudent = {
   id: string;
   name: string;
   gradeClass: string;
-  caseRef: string;
   status: ManagedStudentStatus;
-  supportArea: string;
   lastUpdated: string;
 };
 
@@ -29,25 +26,21 @@ export const managedStudents: ManagedStudent[] = [
     id: "ms-hgd-001",
     name: "홍길동",
     gradeClass: "3학년 1반",
-    caseRef: "HMT-2026-0414",
     status: "지원중",
-    supportArea: "학업·정서·돌봄·경제",
     lastUpdated: "2026-04-14",
   },
   {
     id: "ms-lje-002",
     name: "이지은",
     gradeClass: "3학년 1반",
-    caseRef: "HMT-2026-0415",
     status: "지원중",
-    supportArea: "학업·정서·돌봄·생활",
     lastUpdated: "2026-04-16",
   },
 ];
 
 /** 관리 학생 명단과 동일한 한 줄 요약(통합지원신청 선택 UI 등 공용) */
 export function managedStudentSummaryLine(s: ManagedStudent): string {
-  return `${s.gradeClass} · ${s.caseRef} · ${s.supportArea} · 최근 갱신 ${s.lastUpdated}`;
+  return `${s.gradeClass} · ${s.status} · 최근 갱신 ${s.lastUpdated}`;
 }
 
 /** `3학년 1반` 등 `…학년 …반` 형태를 표시용 학년·반 문자열로 분리 */
@@ -151,8 +144,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "교육청 Wee 클래스(초·중·고) / Wee 센터 연계",
     rationale:
       "정서·행동 어려음이 의심되는 경우 학교·교육청 차원의 전문 상담·치료 연계가 우선 고려됩니다.",
-    match: (s) =>
-      /정서|상담|대인|가족/.test(s.supportArea) || s.status === "관찰",
+    match: (s) => s.status === "관찰" || s.id === "ms-hgd-001",
     baseConfidence: 88,
   },
   {
@@ -161,7 +153,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "청소년상담복지센터(1388) 및 지역 청소년쉼터",
     rationale:
       "가정·정서 스트레스 요인이 병행 관찰될 때 대면·전화 상담과 보호 연계를 병행할 수 있습니다.",
-    match: (s) => /정서|가족|대인/.test(s.supportArea),
+    match: (s) => s.id === "ms-hgd-001",
     baseConfidence: 85,
   },
   {
@@ -170,8 +162,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "학생복지과 학생보호·지원 위기학생 개입 절차",
     rationale:
       "출석·생활 지도와 연계된 맞춤 지원이 필요한 사례로 교내 학생지원심의위원회 검토가 권장됩니다.",
-    match: (s) =>
-      /출석|생활|학업/.test(s.supportArea) || s.status === "지원중",
+    match: (s) => s.status === "지원중",
     baseConfidence: 83,
   },
   {
@@ -179,8 +170,8 @@ const REC_DEFINITIONS: RecDef[] = [
     category: "제도",
     title: "학습 부진(학업성적저조) 예방·조기발견 지원(교과·보충 지도)",
     rationale:
-      "지원영역에 학업·수행·진로 요소가 포함되어 학습 지원 및 진로 멘토링 체계와의 연계 점수가 높습니다.",
-    match: (s) => /학업|수행|진로/.test(s.supportArea),
+      "학습·진로 지원이 필요한 사례로 학습 지원 및 진로 멘토링 체계와의 연계 점수가 높습니다.",
+    match: (s) => s.id === "ms-lje-002",
     baseConfidence: 86,
   },
   {
@@ -189,7 +180,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "교내 보건실·정신건강의학과(의뢰) 및 보건소 연계",
     rationale:
       "급식·수면·신체 증상 등 보건 키워드가 있어 보건·의료 경로를 병행하는 편이 알고리즘상 유리합니다.",
-    match: (s) => /보건|급식/.test(s.supportArea),
+    match: (s) => s.id === "ms-lje-002",
     baseConfidence: 87,
   },
   {
@@ -198,7 +189,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "지역아동센터·가족센터·복지관(시군구 복지) 연계",
     rationale:
       "가족·복지 키워드가 포함되어 있어 지역 복지 자원과의 공식 연계 서식을 우선 제안합니다.",
-    match: (s) => /가족|복지/.test(s.supportArea),
+    match: (s) => s.id === "ms-lje-002",
     baseConfidence: 89,
   },
   {
@@ -207,7 +198,7 @@ const REC_DEFINITIONS: RecDef[] = [
     title: "학교폭력 대책심의위원회 및 피해자 보호 조치(해당 시)",
     rationale:
       "대인 관계·갈등 관련 기록이 있을 때 절차 준수 및 2차 피해 예방 관점에서 검토 항목에 포함됩니다.",
-    match: (s) => /대인|정서/.test(s.supportArea),
+    match: (s) => s.id === "ms-hgd-001",
     baseConfidence: 76,
   },
   {
@@ -249,7 +240,7 @@ function stableStudentHash(id: string): number {
 }
 
 /**
- * 학생 특성(지원영역·상태)을 입력으로 규칙 기반 점수를 매기고,
+ * 학생 특성(상태·식별자 기반 목업)으로 규칙 기반 점수를 매기고,
  * 실제 서비스에서는 동일 슬롯에 LLM/랭킹 모델 결과를 넣는 형태로 치환 가능합니다.
  */
 export function getSupportRecommendations(

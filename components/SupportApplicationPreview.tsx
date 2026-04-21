@@ -12,7 +12,6 @@ export function SupportApplicationPreview() {
       `학년: ${gradeLabel}`,
       `반: ${classLabel}`,
       `학번(일부): ${focusStudent.studentIdMasked}`,
-      `사례번호: ${focusStudent.caseRef}`,
       "",
       "【지원 필요 사유(자동 바인딩 요약)】",
       adminDocSummary.replace(/^\[행정 서류용 자동 요약문 — 초안\]\n?/, "").trim(),
@@ -41,7 +40,7 @@ export function SupportApplicationPreview() {
       doc.text(line, margin, y);
       y += 14;
     });
-    doc.save(`학생지원신청서_${focusStudent.caseRef}_목업.pdf`);
+    doc.save(`학생지원신청서_${focusStudent.name}_목업.pdf`);
   }
 
   return (
