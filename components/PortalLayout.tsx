@@ -10,7 +10,7 @@ const NAVY = "#003876";
 const primaryNavItems = [
   { href: "/hmt-apply", label: "학맞통 신청" },
   { href: "/dashboard", label: "관리 학생 명단" },
-  { href: "/exchange", label: "통합지원신청" },
+  { href: "/exchange", label: "지원 통합 검색" },
   { href: "/forms", label: "서식 모음" },
 ] as const;
 

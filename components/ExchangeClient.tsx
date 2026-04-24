@@ -110,7 +110,7 @@ export function ExchangeClient() {
   return (
     <div className="space-y-6 py-4">
       <div className="space-y-3">
-        <h1 className="text-xl font-bold leading-tight text-[#003876]">통합지원신청</h1>
+        <h1 className="text-xl font-bold leading-tight text-[#003876]">지원 통합 검색</h1>
 
         <div className="flex min-w-0 flex-col gap-2 sm:flex-row sm:items-stretch">
           <div ref={rootRef} className="relative min-w-0 flex-1">
@@ -200,7 +200,7 @@ export function ExchangeClient() {
             disabled={!selectedStudent || applyLoading}
             className="h-[58px] shrink-0 border border-[#003876] bg-[#003876] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#002d5c] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500"
           >
-            {applyLoading ? "요청 중…" : "통합 신청"}
+            {applyLoading ? "요청 중…" : "통합 검색"}
           </button>
         </div>
       </div>
@@ -223,37 +223,23 @@ export function ExchangeClient() {
                     className="overflow-hidden border border-slate-300/80 bg-white"
                     aria-label="AI 분석 정리 요약"
                   >
-                    <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                      <h2 className="text-sm font-semibold text-slate-900">
-                        ai_분석정리_요약
+                    <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-2">
+                      <h2 className="text-sm font-semibold tracking-tight text-slate-900">
+                        분석 요약
                       </h2>
-                      <p className="mt-0.5 text-[11px] text-slate-500">
-                        이름 · 요약분석 · 핵심신호
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                        요약 분석과 핵심 신호를 확인할 수 있습니다.
                       </p>
                     </div>
 
-                    <div className="space-y-5 px-5 py-5">
+                    <div className="space-y-3 px-5 py-3">
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          이름
-                        </p>
-                        <p className="mt-1 text-lg font-semibold text-slate-900">
-                          {aiSummary?.이름}
-                        </p>
-                      </div>
-                      <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          요약분석
-                        </p>
-                        <p className="mt-1.5 text-sm leading-relaxed text-slate-800">
+                        <p className="text-sm leading-relaxed text-slate-800">
                           {aiSummary?.요약분석}
                         </p>
                       </div>
                       <div>
-                        <p className="text-[11px] font-semibold uppercase tracking-wide text-slate-500">
-                          핵심신호
-                        </p>
-                        <ul className="mt-2 flex flex-wrap gap-2" aria-label="핵심신호 목록">
+                        <ul className="flex flex-wrap gap-2" aria-label="핵심신호 목록">
                           {(aiSummary?.핵심신호 ?? []).map((signal) => (
                             <li
                               key={signal}
@@ -272,11 +258,11 @@ export function ExchangeClient() {
                     aria-label="AI 추천 제도 및 기관"
                   >
                     <div className="border-b border-slate-100 bg-slate-50/90 px-5 py-3">
-                      <h2 className="text-sm font-semibold text-slate-900">
-                        ai_추천기관_제도
+                      <h2 className="text-sm font-semibold tracking-tight text-slate-900">
+                        추천 제도·기관
                       </h2>
-                      <p className="mt-0.5 text-[11px] text-slate-500">
-                        복지 통합 스키마 필드 순서와 동일하게 표시합니다.
+                      <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+                        분석 결과로 제시된 복지 제도·기관 정보입니다. 항목별로 확인할 수 있습니다.
                       </p>
                     </div>
 
@@ -301,54 +287,46 @@ export function ExchangeClient() {
                                     : "bg-violet-100 text-violet-900"
                                 }`}
                               >
-                                category: {rec.category}
+                                분류: {rec.category}
                               </span>
                               <span className="rounded bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200">
-                                welfareType: {rec.welfareType || "—"}
+                                복지 유형: {rec.welfareType || "—"}
                               </span>
                               {rec.suitability != null ? (
                                 <span className="rounded bg-[#003876] px-2 py-0.5 text-[11px] font-semibold text-white">
-                                  suitability: {rec.suitability}
+                                  적합도: {rec.suitability}
                                 </span>
                               ) : (
                                 <span className="rounded bg-slate-200 px-2 py-0.5 text-[11px] text-slate-600">
-                                  suitability: —
+                                  적합도: —
                                 </span>
                               )}
                             </div>
 
                             <dl className="mt-4 space-y-3 text-sm text-slate-800">
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  servId
-                                </dt>
-                                <dd className="break-all font-mono text-xs text-slate-900">
-                                  {rec.servId || "—"}
-                                </dd>
-                              </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  servNm
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  서비스명
                                 </dt>
                                 <dd className="text-base font-semibold leading-snug text-slate-900">
                                   {rec.servNm}
                                 </dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  agency
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  소관 부처
                                 </dt>
                                 <dd>{rec.agency || "—"}</dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  department
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  담당 부서
                                 </dt>
                                 <dd className="leading-relaxed">{rec.department || "—"}</dd>
                               </div>
-                              <div className="grid gap-1.5 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="pt-0.5 font-mono text-[11px] font-semibold text-slate-500">
-                                  intrsThemaArray
+                              <div className="grid gap-1.5 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="pt-0.5 text-[11px] font-semibold text-slate-500">
+                                  지원 분야
                                 </dt>
                                 <dd>
                                   {rec.intrsThemaArray.length ? (
@@ -367,9 +345,9 @@ export function ExchangeClient() {
                                   )}
                                 </dd>
                               </div>
-                              <div className="grid gap-1.5 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="pt-0.5 font-mono text-[11px] font-semibold text-slate-500">
-                                  lifeArray
+                              <div className="grid gap-1.5 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="pt-0.5 text-[11px] font-semibold text-slate-500">
+                                  대상 연령
                                 </dt>
                                 <dd>
                                   {rec.lifeArray.length ? (
@@ -388,29 +366,29 @@ export function ExchangeClient() {
                                   )}
                                 </dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  srvPvsnNm
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  지원 형태
                                 </dt>
                                 <dd>{rec.srvPvsnNm || "—"}</dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  sprtCycNm
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  지원 주기
                                 </dt>
                                 <dd>{rec.sprtCycNm || "—"}</dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  servDgst
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  서비스 요약
                                 </dt>
                                 <dd className="leading-relaxed text-slate-700">
                                   {rec.servDgst || "—"}
                                 </dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  servDtlLink
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  상세 정보 링크
                                 </dt>
                                 <dd className="min-w-0 break-all">
                                   {rec.servDtlLink ? (
@@ -427,25 +405,37 @@ export function ExchangeClient() {
                                   )}
                                 </dd>
                               </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  inqNum
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">
+                                  문의처
                                 </dt>
-                                <dd className="font-mono text-xs">
-                                  {rec.inqNum != null ? String(rec.inqNum) : "—"}
-                                </dd>
-                              </div>
-                              <div className="grid gap-1 sm:grid-cols-[8.5rem_1fr] sm:items-start sm:gap-x-3">
-                                <dt className="font-mono text-[11px] font-semibold text-slate-500">
-                                  contact
-                                </dt>
-                                <dd className="break-all">
-                                  {rec.contact === null ? (
-                                    <span className="text-slate-400">null</span>
-                                  ) : rec.contact === "" ? (
-                                    "—"
+                                <dd className="flex flex-wrap items-center justify-between gap-3">
+                                  <span className="min-w-0 break-all">
+                                    {rec.contact === null ? (
+                                      <span className="text-slate-400">null</span>
+                                    ) : rec.contact === "" ? (
+                                      "—"
+                                    ) : (
+                                      rec.contact
+                                    )}
+                                  </span>
+                                  {rec.servDtlLink ? (
+                                    <a
+                                      href={rec.servDtlLink}
+                                      target="_blank"
+                                      rel="noopener noreferrer"
+                                      className="inline-flex min-w-28 items-center justify-center rounded border border-[#003876] bg-[#003876] px-6 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#002d5c]"
+                                    >
+                                      신청하기
+                                    </a>
                                   ) : (
-                                    rec.contact
+                                    <button
+                                      type="button"
+                                      disabled
+                                      className="inline-flex min-w-28 items-center justify-center rounded border border-slate-300 bg-slate-200 px-6 py-2 text-xs font-semibold text-slate-500"
+                                    >
+                                      신청하기
+                                    </button>
                                   )}
                                 </dd>
                               </div>
@@ -458,17 +448,17 @@ export function ExchangeClient() {
                 </>
               ) : !applyApiError ? (
                 <p className="rounded-sm border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-600">
-                  표시할 분석 결과가 없습니다. 통합 신청을 다시 시도해 주세요.
+                  표시할 분석 결과가 없습니다. 통합 검색을 다시 시도해 주세요.
                 </p>
               ) : null}
             </div>
           ) : (
             <section
               className="flex min-h-[min(360px,50vh)] flex-col items-center justify-center border border-dashed border-slate-200 bg-slate-50/40 px-6 py-12 text-center"
-              aria-label="통합 신청 안내"
+              aria-label="통합 검색 안내"
             >
               <p className="mt-4 text-sm font-medium text-slate-600">
-                학생을 선택한 뒤 우측 통합 신청을 눌러주세요.
+                학생을 선택한 뒤 우측 통합 검색을 눌러주세요.
               </p>
               <p className="mt-1.5 max-w-sm text-xs text-slate-500">
                 요청 본문은 대시보드 관리 학생과 동일한 통합신청서·관찰 일지(목업)에서 가져옵니다.
@@ -481,7 +471,7 @@ export function ExchangeClient() {
             aria-label="추천 안내"
           >
             <p className="mt-4 text-sm font-medium text-slate-600">
-              위 목록에서 학생을 선택한 뒤 통합 신청을 눌러주세요.
+              위 목록에서 학생을 선택한 뒤 통합 검색을 눌러주세요.
             </p>
             <p className="mt-1.5 max-w-sm text-xs text-slate-500">
               명단은 대시보드「관리 학생 명단」과 동일한 데이터입니다.
@@ -508,7 +498,7 @@ export function ExchangeClient() {
               id="exchange-loading-title"
               className="mt-5 text-center text-base font-semibold text-slate-900"
             >
-              통합 지원 분석 중
+              통합 검색 중
             </p>
             <p className="mt-2 text-center text-sm leading-relaxed text-slate-600">
               서버에서 학생 정보를 분석하고 있습니다.

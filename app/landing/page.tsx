@@ -6,7 +6,7 @@ const NAVY = "#003876";
 
 const serviceTiles = [
   { label: "통합 관찰일지", tone: "bg-amber-100 text-amber-900" },
-  { label: "통합지원신청", tone: "bg-emerald-100 text-emerald-900" },
+  { label: "지원 통합 검색", tone: "bg-emerald-100 text-emerald-900" },
   { label: "맞춤 진단·요약", tone: "bg-sky-100 text-sky-900" },
   { label: "기관·제도 연계", tone: "bg-rose-100 text-rose-900" },
   { label: "사후·기록 관리", tone: "bg-violet-100 text-violet-900" },
@@ -161,7 +161,7 @@ export default function LandingPage() {
               href="/exchange"
               className="inline-flex items-center justify-center rounded border-2 border-[#003876] bg-white px-6 py-2.5 text-sm font-semibold text-[#003876] hover:bg-slate-50"
             >
-              통합지원신청
+              지원 통합 검색
             </Link>
           </div>
         </div>
@@ -201,7 +201,7 @@ export default function LandingPage() {
       <div style={{ backgroundColor: NAVY }}>
         <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-center gap-2 px-4 py-3 sm:justify-between sm:px-6">
           <p className="text-center text-sm font-medium text-white sm:text-left">
-            지금 바로 관리 학생 명단과 통합지원신청 화면을 확인해 보세요.
+            지금 바로 관리 학생 명단과 지원 통합 검색 화면을 확인해 보세요.
           </p>
           <div className="flex flex-wrap justify-center gap-2">
             <Link
@@ -214,7 +214,7 @@ export default function LandingPage() {
               href="/exchange"
               className="rounded border border-white/60 px-4 py-2 text-xs font-semibold text-white hover:bg-white/10 sm:text-sm"
             >
-              신청 화면
+              검색 화면
             </Link>
           </div>
         </div>
