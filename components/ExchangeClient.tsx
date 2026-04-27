@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, Loader2 } from "lucide-react";
+import { ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ANALYZE_STUDENT_API_URL,
@@ -14,6 +14,30 @@ import {
   managedStudents,
   type ManagedStudent,
 } from "@/lib/mock-data";
+
+const REC_PAGE_SIZE = 10;
+
+/**
+ * 분류 배지 색 — 먼저 `category`(분류)로 판별해 제도가 `welfareType`의 「기관」
+ * 등과 섞여 초록으로 나가지 않게 함. `category`에 키워드가 없을 때만 `welfareType` 보조.
+ */
+function recommendationCategoryBadgeClass(rec: StudentAnalyzeRecommendation): string {
+  const cat = rec.category ?? "";
+  if (cat.includes("기관")) {
+    return "bg-emerald-100 text-emerald-900";
+  }
+  if (cat.includes("제도")) {
+    return "bg-violet-100 text-violet-900";
+  }
+  const wt = rec.welfareType ?? "";
+  if (wt.includes("기관")) {
+    return "bg-emerald-100 text-emerald-900";
+  }
+  if (wt.includes("제도")) {
+    return "bg-violet-100 text-violet-900";
+  }
+  return "bg-slate-100 text-slate-800";
+}
 
 function statusTextClass(status: ManagedStudent["status"]) {
   switch (status) {
@@ -35,6 +59,7 @@ export function ExchangeClient() {
   const [applyLoading, setApplyLoading] = useState(false);
   const [applyApiError, setApplyApiError] = useState<string | null>(null);
   const [apiApplyData, setApiApplyData] = useState<StudentAnalyzeResult | null>(null);
+  const [recPageIndex, setRecPageIndex] = useState(0);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const selectedStudent = useMemo(
@@ -44,6 +69,25 @@ export function ExchangeClient() {
 
   const recommendations = apiApplyData?.ai_추천기관_제도 ?? [];
   const aiSummary = apiApplyData?.ai_분석정리_요약;
+
+  const recTotal = recommendations.length;
+  const recTotalPages = recTotal === 0 ? 0 : Math.ceil(recTotal / REC_PAGE_SIZE);
+  const safeRecPageIndex =
+    recTotalPages === 0 ? 0 : Math.min(recPageIndex, Math.max(0, recTotalPages - 1));
+  const recPageStart = safeRecPageIndex * REC_PAGE_SIZE;
+  const recommendationsPage = useMemo(
+    () => recommendations.slice(recPageStart, recPageStart + REC_PAGE_SIZE),
+    [recommendations, recPageStart],
+  );
+
+  useEffect(() => {
+    setRecPageIndex(0);
+  }, [apiApplyData]);
+
+  useEffect(() => {
+    if (recTotalPages === 0) return;
+    setRecPageIndex((i) => Math.min(i, recTotalPages - 1));
+  }, [recTotalPages]);
 
   useEffect(() => {
     setApiApplyData(null);
@@ -262,30 +306,26 @@ export function ExchangeClient() {
                         추천 제도·기관
                       </h2>
                       <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
-                        분석 결과로 제시된 복지 제도·기관 정보입니다. 항목별로 확인할 수 있습니다.
+                        분석 결과로 제시된 복지 제도·기관 정보입니다. 한 페이지에 {REC_PAGE_SIZE}건씩
+                        표시됩니다.
                       </p>
                     </div>
 
-                    <ul className="space-y-4 px-5 py-5">
-                      {recommendations.map((rec: StudentAnalyzeRecommendation, index: number) => {
-                        const recKey = `${rec.servId || "no-id"}-${index}`;
-                        const isInstitution =
-                          rec.category.includes("기관") || rec.welfareType.includes("기관");
+                    <ul className="space-y-4 px-5 pb-2 pt-5">
+                      {recommendationsPage.map((rec: StudentAnalyzeRecommendation, index: number) => {
+                        const globalIndex = recPageStart + index;
+                        const recKey = `${rec.servId || "no-id"}-${globalIndex}`;
                         return (
                           <li
                             key={recKey}
                             className="rounded-lg border border-slate-200 bg-slate-50/40 p-4 shadow-sm"
                           >
                             <p className="text-[10px] font-medium text-slate-400">
-                              항목 {index + 1} / {recommendations.length}
+                              항목 {globalIndex + 1} / {recTotal}
                             </p>
                             <div className="mt-2 flex flex-wrap items-center gap-2">
                               <span
-                                className={`rounded px-2 py-0.5 text-[11px] font-semibold ${
-                                  isInstitution
-                                    ? "bg-emerald-100 text-emerald-900"
-                                    : "bg-violet-100 text-violet-900"
-                                }`}
+                                className={`rounded px-2 py-0.5 text-[11px] font-semibold ${recommendationCategoryBadgeClass(rec)}`}
                               >
                                 분류: {rec.category}
                               </span>
@@ -444,6 +484,63 @@ export function ExchangeClient() {
                         );
                       })}
                     </ul>
+
+                    {recTotalPages > 1 ? (
+                      <nav
+                        className="flex flex-col items-stretch gap-3 border-t border-slate-100 px-5 py-4 sm:flex-row sm:items-center sm:justify-between"
+                        aria-label="추천 제도·기관 페이지"
+                      >
+                        <p className="text-center text-[11px] text-slate-500 sm:text-left">
+                          {safeRecPageIndex + 1} / {recTotalPages} 페이지 · 전체 {recTotal}건
+                        </p>
+                        <div className="flex flex-wrap items-center justify-center gap-1.5 sm:justify-end">
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 rounded border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            disabled={safeRecPageIndex <= 0}
+                            aria-label="이전 페이지"
+                            onClick={() => setRecPageIndex((p) => Math.max(0, p - 1))}
+                          >
+                            <ChevronLeft className="size-4" aria-hidden />
+                            이전
+                          </button>
+                          <div className="flex flex-wrap items-center justify-center gap-1">
+                            {Array.from({ length: recTotalPages }, (_, i) => {
+                              const pageNum = i + 1;
+                              const isActive = i === safeRecPageIndex;
+                              return (
+                                <button
+                                  key={pageNum}
+                                  type="button"
+                                  className={`min-w-8 rounded px-2 py-1.5 text-xs font-semibold transition-colors ${
+                                    isActive
+                                      ? "bg-[#003876] text-white"
+                                      : "border border-slate-200 bg-white text-slate-700 hover:bg-slate-50"
+                                  }`}
+                                  aria-label={`${pageNum}페이지`}
+                                  aria-current={isActive ? "page" : undefined}
+                                  onClick={() => setRecPageIndex(i)}
+                                >
+                                  {pageNum}
+                                </button>
+                              );
+                            })}
+                          </div>
+                          <button
+                            type="button"
+                            className="inline-flex items-center gap-1 rounded border border-slate-200 bg-white px-2.5 py-1.5 text-xs font-medium text-slate-700 transition-colors hover:bg-slate-50 disabled:cursor-not-allowed disabled:opacity-40"
+                            disabled={safeRecPageIndex >= recTotalPages - 1}
+                            aria-label="다음 페이지"
+                            onClick={() =>
+                              setRecPageIndex((p) => Math.min(recTotalPages - 1, p + 1))
+                            }
+                          >
+                            다음
+                            <ChevronRight className="size-4" aria-hidden />
+                          </button>
+                        </div>
+                      </nav>
+                    ) : null}
                   </section>
                 </>
               ) : !applyApiError ? (
