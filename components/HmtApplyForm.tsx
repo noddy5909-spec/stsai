@@ -1,6 +1,13 @@
 "use client";
 
-import { useCallback, useState, type Dispatch, type SetStateAction } from "react";
+import {
+  useCallback,
+  useRef,
+  useState,
+  type Dispatch,
+  type SetStateAction,
+} from "react";
+import { useDaumPostcodePopup } from "react-daum-postcode";
 
 type CheckState = Record<string, boolean>;
 
@@ -95,7 +102,7 @@ function CheckboxGrid({
             type="checkbox"
             checked={!!state[o.id]}
             onChange={() => onToggle(o.id)}
-            className="mt-0.5 size-3.5 shrink-0 accent-slate-900 sm:size-4"
+            className="mt-0.5 size-3.5 shrink-0 accent-[#003876] sm:size-4"
           />
           <span className={textCls}>{o.label}</span>
         </label>
@@ -110,7 +117,7 @@ function CheckboxGrid({
             type="checkbox"
             checked={!!state[otherKey]}
             onChange={() => onToggle(otherKey)}
-            className="mt-0.5 size-3.5 shrink-0 accent-slate-900 sm:size-4"
+            className="mt-0.5 size-3.5 shrink-0 accent-[#003876] sm:size-4"
           />
           <span className={textCls}>기타(</span>
           <input
@@ -130,32 +137,32 @@ function CheckboxGrid({
 
 /** PDF「학생맞춤통합지원 신청서(학교)」테두리·셀 스타일 */
 const sheet = {
-  wrap: "max-sm:-mx-1 max-sm:overflow-x-auto",
+  wrap: "bg-white max-sm:-mx-1 max-sm:overflow-x-auto",
   table:
-    "w-full min-w-0 table-fixed border-collapse border border-slate-900 bg-white text-slate-900 [&_td]:border-slate-900 [&_th]:border-slate-900",
-  titleRow: "border border-slate-900 bg-white px-2 py-2 text-center text-[13px] font-bold leading-snug sm:text-sm",
+    "w-full min-w-[56rem] table-fixed border-collapse bg-white text-slate-900 [&_td]:border-slate-900 [&_th]:border-slate-900",
+  titleRow: "border border-slate-900 bg-white px-2 py-2 text-center text-[13px] font-normal leading-snug sm:text-sm",
   td: "border border-slate-900 p-1 align-top text-[10px] leading-tight sm:p-1.5 sm:text-[11px] sm:leading-snug",
   /** 상단 6열 표 — 라벨 */
   thTop:
-    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[4.7rem] sm:w-[5.3rem]",
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-normal break-keep sm:p-1.5 sm:text-[11px] align-middle w-[4.7rem] sm:w-[5.3rem]",
   /** 구분 열(기초수급·학업 등) */
   thCat:
-    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-normal break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
   thCatHead:
-    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-semibold break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-normal break-keep sm:p-1.5 sm:text-[11px] align-middle w-[5.1rem] sm:w-[6rem]",
   thItemHead:
-    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-semibold sm:p-1.5 sm:text-[11px] align-middle min-w-0",
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-normal sm:p-1.5 sm:text-[11px] align-middle min-w-0",
   /** 세로 블록 제목: 학생 기본사항 / 학생 어려움 */
   thSection:
-    "border border-slate-900 bg-slate-50 px-0.5 py-1.5 text-center align-middle text-[10px] font-bold leading-tight text-slate-900 sm:w-fit sm:px-1 sm:py-2.5 sm:text-[11px] writing-vertical-rl w-[5.1rem]",
+    "border border-slate-900 bg-slate-50 px-0.5 py-1.5 text-center align-middle text-[10px] font-normal leading-tight text-slate-900 sm:w-fit sm:px-1 sm:py-2.5 sm:text-[11px] writing-vertical-rl w-[5.1rem]",
   thReason:
-    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-medium break-keep sm:p-1.5 sm:text-[11px] align-middle w-[7.15rem] sm:w-[8.35rem]",
+    "border border-slate-900 bg-slate-50 p-1 text-center text-[10px] font-normal break-keep sm:p-1.5 sm:text-[11px] align-middle w-[7.15rem] sm:w-[8.35rem]",
 } as const;
 
 const fieldLine =
-  "w-full min-h-[1.35rem] border-0 border-b border-slate-700 bg-transparent py-0 text-center text-[11px] leading-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#003876]/50 sm:text-xs";
+  "w-full min-h-[1.35rem] border-0 border-b border-slate-700 bg-transparent py-0 text-center text-[11px] font-light leading-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#003876]/50 sm:text-xs";
 const areaField =
-  "min-h-[4.6rem] w-full resize-y border border-slate-600 p-1.5 text-[11px] leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/30 sm:text-xs";
+  "min-h-[4.6rem] w-full resize-y border border-slate-600 p-1.5 text-[11px] font-light leading-tight focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#003876]/30 sm:text-xs";
 
 export function HmtApplyForm() {
   const [applicantName, setApplicantName] = useState("");
@@ -163,13 +170,16 @@ export function HmtApplyForm() {
   const [relationToStudent, setRelationToStudent] = useState("");
 
   const [studentName, setStudentName] = useState("");
+  const [schoolLevel, setSchoolLevel] = useState<"" | "초등학교" | "중학교" | "고등학교">("");
   const [gradeYear, setGradeYear] = useState("");
   const [classRoom, setClassRoom] = useState("");
   const [birthDate, setBirthDate] = useState("");
   const [gender, setGender] = useState<"" | "male" | "female">("");
   const [phoneStudent, setPhoneStudent] = useState("");
   const [phoneGuardian, setPhoneGuardian] = useState("");
+  const [postcode, setPostcode] = useState("");
   const [address, setAddress] = useState("");
+  const [detailAddress, setDetailAddress] = useState("");
 
   const [basicSupport, setBasicSupport] = useState<CheckState>({});
   const [family, setFamily] = useState<CheckState>({});
@@ -202,6 +212,37 @@ export function HmtApplyForm() {
 
   const [savedToast, setSavedToast] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const detailAddressRef = useRef<HTMLInputElement>(null);
+  const openDaumPostcode = useDaumPostcodePopup();
+
+  const openAddressPopup = useCallback(() => {
+    openDaumPostcode({
+      onComplete: (data: {
+        zonecode: string;
+        roadAddress: string;
+        jibunAddress: string;
+        addressType: string;
+        bname: string;
+        buildingName: string;
+        apartment: "Y" | "N";
+      }) => {
+        const baseAddress = data.roadAddress || data.jibunAddress || "";
+        let extraAddress = "";
+        if (data.addressType === "R") {
+          if (data.bname) extraAddress += data.bname;
+          if (data.buildingName) {
+            extraAddress += extraAddress
+              ? `, ${data.buildingName}`
+              : data.buildingName;
+          }
+        }
+        const merged = extraAddress ? `${baseAddress} (${extraAddress})` : baseAddress;
+        setPostcode(data.zonecode || "");
+        setAddress(merged);
+        window.setTimeout(() => detailAddressRef.current?.focus(), 0);
+      },
+    });
+  }, [openDaumPostcode]);
 
   const handleSaveDraft = () => {
     setSavedToast(true);
@@ -209,9 +250,9 @@ export function HmtApplyForm() {
   };
 
   return (
-    <div className="mx-auto max-w-4xl space-y-4 print:max-w-none">
+    <div className="mx-auto max-w-4xl space-y-4 font-light print:max-w-none">
       <div className="print:hidden">
-        <h1 className="text-xl font-bold text-[#003876]">학맞통 신청</h1>
+        <h1 className="text-xl font-normal text-[#003876]">학맞통 신청</h1>
         <p className="mt-1 text-sm text-slate-500">
           아래 서식은「학생맞춤통합지원 신청서(학교)」PDF와 동일한 항목·순서입니다. 저장·전송은 목업입니다.
         </p>
@@ -225,12 +266,12 @@ export function HmtApplyForm() {
         }}
       >
         <article
-          className="border-2 border-slate-900 bg-white shadow-sm print:border-slate-900 print:shadow-none"
+          className="bg-white shadow-sm outline outline-2 -outline-offset-1 outline-slate-900 print:shadow-none"
           aria-label="학생맞춤통합지원 신청서"
         >
           <div className={sheet.wrap}>
             {/* PDF 1페이지: 제목 + 신청자·학생 + 연락처·주소 (6열) */}
-            <table className={`${sheet.table} min-w-[56rem]`}>
+            <table className={sheet.table}>
               <caption className="sr-only">
                 학생맞춤통합지원 신청서 교직원에서 교내 협의체로 제출
               </caption>
@@ -297,49 +338,69 @@ export function HmtApplyForm() {
                     />
                   </td>
                   <th className={sheet.thTop} scope="row">
-                    학년
+                    학교급
                   </th>
                   <td className={sheet.td}>
-                    <input
-                      value={gradeYear}
-                      onChange={(e) => setGradeYear(e.target.value)}
-                      placeholder="예: 고1"
-                      className={fieldLine}
-                      aria-label="학년"
-                    />
+                    <select
+                      value={schoolLevel}
+                      onChange={(e) =>
+                        setSchoolLevel(e.target.value as "" | "초등학교" | "중학교" | "고등학교")
+                      }
+                      className="w-full min-h-[1.35rem] border-0 border-b border-slate-700 bg-transparent py-0 text-center text-[11px] font-light leading-tight focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-[#003876]/50 sm:text-xs"
+                      aria-label="학교급"
+                    >
+                      <option value="">선택</option>
+                      <option value="초등학교">초등학교</option>
+                      <option value="중학교">중학교</option>
+                      <option value="고등학교">고등학교</option>
+                    </select>
                   </td>
                   <th className={sheet.thTop} scope="row">
-                    반
+                    학년/반
                   </th>
                   <td className={sheet.td}>
-                    <input
-                      value={classRoom}
-                      onChange={(e) => setClassRoom(e.target.value)}
-                      placeholder="예: 3"
-                      className={fieldLine}
-                      aria-label="반"
-                    />
+                    <div className="grid grid-cols-2 overflow-hidden border border-slate-700">
+                      <div className="border-r border-slate-700 p-1">
+                        <p className="text-center text-[10px] text-slate-500">학년</p>
+                        <input
+                          value={gradeYear}
+                          onChange={(e) => setGradeYear(e.target.value)}
+                          placeholder="예: 1"
+                          className={fieldLine}
+                          aria-label="학년"
+                        />
+                      </div>
+                      <div className="p-1">
+                        <p className="text-center text-[10px] text-slate-500">반</p>
+                        <input
+                          value={classRoom}
+                          onChange={(e) => setClassRoom(e.target.value)}
+                          placeholder="예: 3"
+                          className={fieldLine}
+                          aria-label="반"
+                        />
+                      </div>
+                    </div>
                   </td>
                 </tr>
                 <tr>
                   <th className={sheet.thTop} scope="row">
                     생년월일
                   </th>
-                  <td className={sheet.td} colSpan={5}>
+                  <td className={sheet.td} colSpan={2}>
                     <input
+                      type="date"
                       value={birthDate}
                       onChange={(e) => setBirthDate(e.target.value)}
-                      placeholder="YYYY-MM-DD"
-                      className={fieldLine}
+                      className={`${fieldLine} text-center text-slate-700`}
+                      aria-label="생년월일"
                     />
                   </td>
-                </tr>
-                <tr>
                   <th className={sheet.thTop} scope="row">
                     성별
                   </th>
-                  <td className={sheet.td} colSpan={5}>
-                    <fieldset className="flex flex-wrap items-center gap-2.5 border-0 p-0 sm:gap-4">
+                  <td className={`${sheet.td} text-left`} colSpan={2}>
+                    <fieldset className="flex flex-wrap items-center justify-start gap-2.5 border-0 p-0 sm:gap-4">
                       <legend className="sr-only">성별</legend>
                       <label className="flex items-center gap-1.5 text-sm">
                         <input
@@ -347,7 +408,7 @@ export function HmtApplyForm() {
                           name="gender"
                           checked={gender === "male"}
                           onChange={() => setGender("male")}
-                          className="size-3.5 accent-slate-900"
+                          className="size-3.5 accent-[#003876]"
                         />
                         남
                       </label>
@@ -357,7 +418,7 @@ export function HmtApplyForm() {
                           name="gender"
                           checked={gender === "female"}
                           onChange={() => setGender("female")}
-                          className="size-3.5 accent-slate-900"
+                          className="size-3.5 accent-[#003876]"
                         />
                         여
                       </label>
@@ -365,47 +426,77 @@ export function HmtApplyForm() {
                   </td>
                 </tr>
                 <tr>
-                  <th className={sheet.thTop} rowSpan={2} scope="rowgroup">
+                  <th className={sheet.thTop} scope="row">
                     연락처
                   </th>
-                  <td className={`${sheet.td} text-center font-medium`} scope="row">
-                    학생
-                  </td>
-                  <td className={sheet.td} colSpan={2}>
-                    <input
-                      value={phoneStudent}
-                      onChange={(e) => setPhoneStudent(e.target.value)}
-                      placeholder="000-0000-0000"
-                      className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
-                    />
-                  </td>
-                  <th className={sheet.thTop} rowSpan={2} scope="rowgroup">
-                    주소
-                  </th>
-                  <td className={sheet.td} rowSpan={2}>
-                    <span className="mb-1 block font-medium">학생</span>
-                    <input
-                      value={address}
-                      onChange={(e) => setAddress(e.target.value)}
-                      className={fieldLine}
-                    />
+                  <td className={sheet.td} colSpan={5}>
+                    <div className="grid gap-1.5">
+                      <div className="grid grid-cols-[3.1rem_1fr] items-center gap-2">
+                        <span className="text-center font-medium">학생</span>
+                        <input
+                          value={phoneStudent}
+                          onChange={(e) => setPhoneStudent(e.target.value)}
+                          placeholder="000-0000-0000"
+                          className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
+                        />
+                      </div>
+                      <div className="h-px w-full bg-slate-300/90" aria-hidden />
+                      <div className="grid grid-cols-[3.1rem_1fr] items-center gap-2">
+                        <span className="text-center font-medium">보호자</span>
+                        <input
+                          value={phoneGuardian}
+                          onChange={(e) => setPhoneGuardian(e.target.value)}
+                          placeholder="000-0000-0000(모)"
+                          className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
+                        />
+                      </div>
+                    </div>
                   </td>
                 </tr>
                 <tr>
-                  <td className={`${sheet.td} text-center font-medium`} scope="row">
-                    보호자
-                  </td>
-                  <td className={sheet.td} colSpan={2}>
-                    <input
-                      value={phoneGuardian}
-                      onChange={(e) => setPhoneGuardian(e.target.value)}
-                      placeholder="000-0000-0000(모)"
-                      className={`${fieldLine} inline-block w-[min(100%,11.5rem)] sm:w-56`}
-                    />
+                  <th className={sheet.thTop} scope="row">
+                    주소
+                  </th>
+                  <td className={sheet.td} colSpan={5}>
+                    <div className="space-y-1.5">
+                      <div className="flex flex-wrap items-center gap-1.5">
+                        <input
+                          value={postcode}
+                          readOnly
+                          placeholder="우편번호"
+                          className="h-7 min-w-[6.5rem] flex-1 border border-gray-100 bg-slate-50/60 px-2 text-[11px] font-light text-slate-700 outline-none"
+                          aria-label="우편번호"
+                        />
+                        <button
+                          type="button"
+                          onClick={openAddressPopup}
+                          className="h-7 shrink-0 rounded border border-emerald-600 bg-emerald-600 px-2.5 text-[11px] font-light text-white hover:bg-emerald-700"
+                        >
+                          우편번호 찾기
+                        </button>
+                      </div>
+                      <input
+                        value={address}
+                        readOnly
+                        placeholder="기본 주소"
+                        className="h-7 w-full border border-gray-100 bg-slate-50/60 px-2 text-[11px] font-light text-slate-700 outline-none"
+                        aria-label="기본 주소"
+                      />
+                      <input
+                        ref={detailAddressRef}
+                        value={detailAddress}
+                        onChange={(e) => setDetailAddress(e.target.value)}
+                        placeholder="상세 주소"
+                        className="h-7 w-full border border-gray-100 bg-slate-50/60 px-2 text-[11px] font-light text-slate-700 outline-none"
+                        aria-label="상세 주소"
+                      />
+                    </div>
                   </td>
                 </tr>
               </tbody>
             </table>
+
+            <div className="h-2 bg-slate-50/70" aria-hidden />
 
             {/* 학생 기본사항: 세로 제목 + 구분 + 항목 (3열) */}
             <table className={sheet.table}>
@@ -477,6 +568,8 @@ export function HmtApplyForm() {
               </tbody>
             </table>
 
+            <div className="h-2 bg-slate-50/70" aria-hidden />
+
             {/* 학생 어려움 */}
             <table className={sheet.table}>
               <colgroup>
@@ -532,7 +625,7 @@ export function HmtApplyForm() {
                 </tr>
                 <tr>
                   <th className={sheet.thCat} scope="row">
-                    돌봄･안전･건강
+                    돌봄･건강
                   </th>
                   <td className={sheet.td}>
                     <CheckboxGrid
@@ -580,6 +673,8 @@ export function HmtApplyForm() {
                 </tr>
               </tbody>
             </table>
+
+            <div className="h-2 bg-slate-50/70" aria-hidden />
 
             {/* 신청 사유 · 지원 요청 (PDF 하단 2열) */}
             <table className={sheet.table}>

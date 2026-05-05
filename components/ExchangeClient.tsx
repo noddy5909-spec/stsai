@@ -1,6 +1,6 @@
 "use client";
 
-import { ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Check, ChevronDown, ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 import {
   ANALYZE_STUDENT_API_URL,
@@ -16,6 +16,51 @@ import {
 } from "@/lib/mock-data";
 
 const REC_PAGE_SIZE = 10;
+
+/** 핵심신호 배지 — 「학업 부진」과 동일한 파란 톤으로 통일 */
+const SIGNAL_BADGE_CLASS =
+  "rounded-full border border-blue-200/80 bg-blue-100 px-3 py-1 text-xs font-medium text-blue-800";
+
+/** 적합도(0–100) — 배지 줄 높이에 맞춘 작은 원형 그래프 */
+function SuitabilityMiniDonut({ value }: { value: number }) {
+  const pct = Math.min(100, Math.max(0, value));
+  const size = 18;
+  const stroke = 2;
+  const r = size / 2 - stroke / 2 - 0.25;
+  const c = 2 * Math.PI * r;
+  const dash = (pct / 100) * c;
+  const cx = size / 2;
+  const cy = size / 2;
+  return (
+    <div
+      className="relative inline-flex size-[18px] shrink-0 items-center justify-center"
+      title={`적합도 ${pct}%`}
+    >
+      <svg
+        width={size}
+        height={size}
+        viewBox={`0 0 ${size} ${size}`}
+        className="-rotate-90"
+        aria-hidden
+      >
+        <circle cx={cx} cy={cy} r={r} fill="none" className="stroke-slate-200" strokeWidth={stroke} />
+        <circle
+          cx={cx}
+          cy={cy}
+          r={r}
+          fill="none"
+          className="stroke-[#003876]"
+          strokeWidth={stroke}
+          strokeLinecap="round"
+          strokeDasharray={`${dash} ${c}`}
+        />
+      </svg>
+      <span className="pointer-events-none absolute inset-0 flex items-center justify-center text-[6.5px] font-semibold tabular-nums leading-none text-slate-800">
+        {pct}
+      </span>
+    </div>
+  );
+}
 
 /**
  * 분류 배지 색 — 먼저 `category`(분류)로 판별해 제도가 `welfareType`의 「기관」
@@ -60,6 +105,8 @@ export function ExchangeClient() {
   const [applyApiError, setApplyApiError] = useState<string | null>(null);
   const [apiApplyData, setApiApplyData] = useState<StudentAnalyzeResult | null>(null);
   const [recPageIndex, setRecPageIndex] = useState(0);
+  const [applyCtaPhase, setApplyCtaPhase] = useState<"idle" | "submitting" | "done">("idle");
+  const applyCtaTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const rootRef = useRef<HTMLDivElement>(null);
 
   const selectedStudent = useMemo(
@@ -92,7 +139,20 @@ export function ExchangeClient() {
   useEffect(() => {
     setApiApplyData(null);
     setApplyApiError(null);
+    setApplyCtaPhase("idle");
+    if (applyCtaTimerRef.current) {
+      clearTimeout(applyCtaTimerRef.current);
+      applyCtaTimerRef.current = null;
+    }
   }, [selectedId]);
+
+  useEffect(() => {
+    return () => {
+      if (applyCtaTimerRef.current) {
+        clearTimeout(applyCtaTimerRef.current);
+      }
+    };
+  }, []);
 
   useEffect(() => {
     if (!listOpen) return;
@@ -107,15 +167,27 @@ export function ExchangeClient() {
 
   async function handleIntegratedApply() {
     if (!selectedStudent) return;
+    setApplyCtaPhase("submitting");
+    if (applyCtaTimerRef.current) {
+      clearTimeout(applyCtaTimerRef.current);
+      applyCtaTimerRef.current = null;
+    }
+    applyCtaTimerRef.current = setTimeout(() => {
+      setApplyCtaPhase("done");
+      applyCtaTimerRef.current = null;
+    }, 1000);
+
     setApplyApiError(null);
     setApiApplyData(null);
     setApplyLoading(true);
     try {
       const body = buildAnalyzeStudentPayload(selectedStudent.id);
+      const requestJson = JSON.stringify(body);
+      console.log("[통합 검색] 요청 JSON (본문 문자열)\n", requestJson);
       const res = await fetch(ANALYZE_STUDENT_API_URL, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(body),
+        body: requestJson,
       });
       const text = await res.text();
       let json: unknown;
@@ -125,6 +197,11 @@ export function ExchangeClient() {
         json = null;
       }
       if (!res.ok) {
+        if (applyCtaTimerRef.current) {
+          clearTimeout(applyCtaTimerRef.current);
+          applyCtaTimerRef.current = null;
+        }
+        setApplyCtaPhase("idle");
         setApplyApiError(
           typeof json === "object" && json && "message" in json
             ? String((json as { message: unknown }).message)
@@ -136,6 +213,11 @@ export function ExchangeClient() {
         if (parsed) {
           setApiApplyData(parsed);
         } else {
+          if (applyCtaTimerRef.current) {
+            clearTimeout(applyCtaTimerRef.current);
+            applyCtaTimerRef.current = null;
+          }
+          setApplyCtaPhase("idle");
           setApiApplyData(null);
           setApplyApiError(
             "API 응답 형식이 올바르지 않습니다. ai_분석정리_요약·ai_추천기관_제도 구조를 확인해 주세요.",
@@ -143,6 +225,11 @@ export function ExchangeClient() {
         }
       }
     } catch (e) {
+      if (applyCtaTimerRef.current) {
+        clearTimeout(applyCtaTimerRef.current);
+        applyCtaTimerRef.current = null;
+      }
+      setApplyCtaPhase("idle");
       setApiApplyData(null);
       setApplyApiError(e instanceof Error ? e.message : "요청 처리 오류");
     } finally {
@@ -241,10 +328,23 @@ export function ExchangeClient() {
           <button
             type="button"
             onClick={() => void handleIntegratedApply()}
-            disabled={!selectedStudent || applyLoading}
-            className="h-[58px] shrink-0 border border-[#003876] bg-[#003876] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#002d5c] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500"
+            disabled={
+              !selectedStudent || applyLoading || applyCtaPhase === "submitting"
+            }
+            className="inline-flex h-[58px] min-w-[8.5rem] shrink-0 items-center justify-center gap-2 border border-[#003876] bg-[#003876] px-5 text-sm font-semibold text-white transition-colors hover:bg-[#002d5c] disabled:cursor-not-allowed disabled:border-slate-300 disabled:bg-slate-200 disabled:text-slate-500"
           >
-            {applyLoading ? "요청 중…" : "통합 검색"}
+            {applyCtaPhase === "submitting" ? (
+              "신청 중…"
+            ) : applyCtaPhase === "done" ? (
+              <>
+                <Check className="size-4 shrink-0" strokeWidth={2.5} aria-hidden />
+                신청 완료
+              </>
+            ) : applyLoading ? (
+              "요청 중…"
+            ) : (
+              "통합 검색"
+            )}
           </button>
         </div>
       </div>
@@ -252,7 +352,7 @@ export function ExchangeClient() {
       <div className="w-full min-w-0">
         {selectedStudent ? (
           screenMode === "apply" ? (
-            <div className="space-y-4" aria-live="polite">
+            <div className="space-y-4 font-light" aria-live="polite">
               {applyApiError ? (
                 <p
                   role="alert"
@@ -278,17 +378,14 @@ export function ExchangeClient() {
 
                     <div className="space-y-3 px-5 py-3">
                       <div>
-                        <p className="text-sm leading-relaxed text-slate-800">
+                        <p className="text-sm font-normal leading-relaxed text-slate-800">
                           {aiSummary?.요약분석}
                         </p>
                       </div>
                       <div>
                         <ul className="flex flex-wrap gap-2" aria-label="핵심신호 목록">
                           {(aiSummary?.핵심신호 ?? []).map((signal) => (
-                            <li
-                              key={signal}
-                              className="rounded-full border border-[#003876]/25 bg-[#f0f4fa] px-3 py-1 text-xs font-medium text-[#003876]"
-                            >
+                            <li key={signal} className={SIGNAL_BADGE_CLASS}>
                               {signal}
                             </li>
                           ))}
@@ -333,8 +430,10 @@ export function ExchangeClient() {
                                 복지 유형: {rec.welfareType || "—"}
                               </span>
                               {rec.suitability != null ? (
-                                <span className="rounded bg-[#003876] px-2 py-0.5 text-[11px] font-semibold text-white">
-                                  적합도: {rec.suitability}
+                                <span className="inline-flex items-center gap-1.5 rounded bg-white px-2 py-0.5 text-[11px] font-medium text-slate-700 ring-1 ring-slate-200">
+                                  <span className="font-semibold text-slate-600">적합도</span>
+                                  <SuitabilityMiniDonut value={rec.suitability} />
+                                  <span className="sr-only">적합도 {rec.suitability}%</span>
                                 </span>
                               ) : (
                                 <span className="rounded bg-slate-200 px-2 py-0.5 text-[11px] text-slate-600">
@@ -342,26 +441,17 @@ export function ExchangeClient() {
                                 </span>
                               )}
                             </div>
+                            <p className="mt-2.5 text-base font-semibold leading-snug text-slate-900">
+                              {rec.servNm}
+                            </p>
 
                             <dl className="mt-4 space-y-3 text-sm text-slate-800">
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  서비스명
-                                </dt>
-                                <dd className="text-base font-semibold leading-snug text-slate-900">
-                                  {rec.servNm}
-                                </dd>
-                              </div>
-                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  소관 부처
-                                </dt>
+                                <dt className="text-[11px] font-semibold text-slate-500">소관 부처</dt>
                                 <dd>{rec.agency || "—"}</dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  담당 부서
-                                </dt>
+                                <dt className="text-[11px] font-semibold text-slate-500">담당 부서</dt>
                                 <dd className="leading-relaxed">{rec.department || "—"}</dd>
                               </div>
                               <div className="grid gap-1.5 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
@@ -407,23 +497,23 @@ export function ExchangeClient() {
                                 </dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  지원 형태
-                                </dt>
+                                <dt className="text-[11px] font-semibold text-slate-500">지원 형태</dt>
                                 <dd>{rec.srvPvsnNm || "—"}</dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  지원 주기
-                                </dt>
+                                <dt className="text-[11px] font-semibold text-slate-500">지원 주기</dt>
                                 <dd>{rec.sprtCycNm || "—"}</dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  서비스 요약
-                                </dt>
-                                <dd className="leading-relaxed text-slate-700">
+                                <dt className="text-[11px] font-semibold text-slate-500">지원 내용</dt>
+                                <dd className="font-normal leading-relaxed text-slate-700">
                                   {rec.servDgst || "—"}
+                                </dd>
+                              </div>
+                              <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
+                                <dt className="text-[11px] font-semibold text-slate-500">필요 서류</dt>
+                                <dd className="font-normal leading-relaxed text-slate-700">
+                                  제도·기관별로 상이하며, 신청 단계에서 별도 안내 예정입니다.
                                 </dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
@@ -446,11 +536,9 @@ export function ExchangeClient() {
                                 </dd>
                               </div>
                               <div className="grid gap-1 sm:grid-cols-[minmax(7.5rem,11rem)_1fr] sm:items-start sm:gap-x-4">
-                                <dt className="text-[11px] font-semibold text-slate-500">
-                                  문의처
-                                </dt>
+                                <dt className="text-[11px] font-semibold text-slate-500">문의처</dt>
                                 <dd className="flex flex-wrap items-center justify-between gap-3">
-                                  <span className="min-w-0 break-all">
+                                  <span className="min-w-0 break-all font-normal">
                                     {rec.contact === null ? (
                                       <span className="text-slate-400">null</span>
                                     ) : rec.contact === "" ? (
@@ -541,6 +629,12 @@ export function ExchangeClient() {
                         </div>
                       </nav>
                     ) : null}
+                    <div className="border-t border-slate-100 px-5 py-3 text-right">
+                      <p className="text-[10px] text-gray-400">
+                        Source: 복지로 오픈 API 및 나이스 교육정보 개방포털 기반
+                      </p>
+                      <p className="mt-0.5 text-[10px] text-gray-400">데이터 기준일: 2026.04.27</p>
+                    </div>
                   </section>
                 </>
               ) : !applyApiError ? (

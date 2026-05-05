@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { LandingMediaTabs, LandingNoticeTabs } from "@/components/LandingTabs";
-import { PrivacyFooter } from "@/components/PrivacyFooter";
 
 const NAVY = "#003876";
 
@@ -176,8 +175,26 @@ export default function LandingPage() {
           >
             주요 서비스(목업)
           </h2>
-          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
-            {serviceTiles.map((tile) => (
+          <div className="mt-6 grid grid-cols-2 gap-3 sm:grid-cols-4">
+            {serviceTiles.slice(0, 4).map((tile) => (
+              <div
+                key={tile.label}
+                className="group flex flex-col items-center justify-center border border-slate-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
+              >
+                <div
+                  className={`flex size-14 items-center justify-center rounded-full text-2xl font-light transition-all duration-300 ease-out group-hover:-translate-y-1 group-hover:saturate-150 ${tile.tone}`}
+                  aria-hidden
+                >
+                  ·
+                </div>
+                <p className="mt-3 text-xs font-medium leading-snug text-slate-800 sm:text-[13px]">
+                  {tile.label}
+                </p>
+              </div>
+            ))}
+          </div>
+          <div className="mt-4 grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6">
+            {serviceTiles.slice(4).map((tile) => (
               <div
                 key={tile.label}
                 className="flex flex-col items-center justify-center border border-slate-200 bg-white p-4 text-center shadow-sm transition-shadow hover:shadow-md"
@@ -193,6 +210,38 @@ export default function LandingPage() {
                 </p>
               </div>
             ))}
+          </div>
+        </div>
+      </section>
+
+      {/* Why EASY */}
+      <section className="border-t border-slate-200 bg-slate-50/50 px-4 py-12 sm:px-6">
+        <div className="mx-auto max-w-6xl">
+          <h2
+            className="text-center text-xl font-bold tracking-tight sm:text-2xl"
+            style={{ color: NAVY }}
+          >
+            왜 학맞통 EASY인가?
+          </h2>
+          <div className="mt-8 grid gap-4 md:grid-cols-3">
+            <article className="border border-slate-200 bg-white px-5 py-6 text-center shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">자동 문서 변환</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                한글 파일 연동
+              </p>
+            </article>
+            <article className="border border-slate-200 bg-white px-5 py-6 text-center shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">AI 맞춤 추천</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                복지로/나이스 데이터 기반
+              </p>
+            </article>
+            <article className="border border-slate-200 bg-white px-5 py-6 text-center shadow-sm">
+              <h3 className="text-sm font-semibold text-slate-900">원클릭 기관 연계</h3>
+              <p className="mt-2 text-xs leading-relaxed text-slate-600">
+                행정 업무 단축
+              </p>
+            </article>
           </div>
         </div>
       </section>
@@ -401,7 +450,25 @@ export default function LandingPage() {
         </div>
       </section>
 
-      <PrivacyFooter />
+      <footer className="border-t border-slate-300 bg-slate-50/90">
+        <div className="mx-auto flex max-w-6xl flex-col gap-5 px-4 py-6 sm:px-6 lg:flex-row lg:items-end lg:justify-between">
+          <div className="flex items-start gap-3">
+            <div
+              className="flex h-12 w-12 shrink-0 items-center justify-center rounded border border-dashed border-slate-300 bg-white text-[10px] text-slate-400"
+              aria-hidden
+            >
+              LOGO
+            </div>
+            <p className="text-xs leading-relaxed text-slate-600">
+              공공데이터 활용: 교육부, 한국장학재단, 한국교육학술정보원(KERIS),
+              보건복지부
+            </p>
+          </div>
+          <p className="text-right text-[10px] text-slate-500">
+            데이터 업데이트 기준: 2026. 04. 27
+          </p>
+        </div>
+      </footer>
     </div>
   );
 }

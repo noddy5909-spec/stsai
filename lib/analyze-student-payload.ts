@@ -42,7 +42,6 @@ export type StudentAnalyzeResult = {
 export const ANALYZE_STUDENT_API_URL = "/api/analyze-student";
 
 export type AnalyzeStudentJournalRow = {
-  교사이름: string;
   직위: string;
   날짜: string;
   시간: string;
@@ -78,7 +77,6 @@ export function mapObservationToJournalRow(o: ObservationEntry): AnalyzeStudentJ
   const 특이사항 = (noteMatch?.[1] ?? "").trim();
 
   return {
-    교사이름: o.author,
     직위: o.role,
     날짜: datePart,
     시간: normalizeTimePart(timePartRaw),
@@ -94,19 +92,67 @@ export function mapObservationToJournalRow(o: ObservationEntry): AnalyzeStudentJ
  */
 export function buildAnalyzeStudentPayload(studentId: string): Record<string, unknown> {
   const base = studentApplicationDetailsById[studentId] as
-    | { 전체데이터?: { 통합신청서정보?: Record<string, unknown> } }
+    | {
+        전체데이터?: {
+          학생맞춤통합지원_신청서?: {
+            대상학생_정보?: {
+              성별?: string;
+              거주지역?: string;
+              학교급?: string;
+              학년?: string;
+            };
+            학생_기본사항?: {
+              기초수급_보장현황?: string[];
+              가족현황?: string[];
+              학생현황?: string[];
+            };
+            학생_어려움?: {
+              학업?: string[];
+              심리_정서?: string[];
+              돌봄_안전_건강?: string[];
+              경제_생활?: string[];
+              기타?: string;
+            };
+            신청_사유?: string[];
+            지원_요청_사항?: string[];
+          };
+        };
+      }
     | undefined;
 
-  const 통합신청서정보 = base?.전체데이터?.통합신청서정보;
-  if (!통합신청서정보) {
-    throw new Error(`통합신청서정보가 없는 학생 ID: ${studentId}`);
+  const 학생맞춤통합지원_신청서 = base?.전체데이터?.학생맞춤통합지원_신청서;
+  if (!학생맞춤통합지원_신청서) {
+    throw new Error(`학생맞춤통합지원_신청서가 없는 학생 ID: ${studentId}`);
   }
+
+  const payload신청서 = {
+    대상학생_정보: {
+      성별: 학생맞춤통합지원_신청서.대상학생_정보?.성별 ?? "",
+      거주지역: 학생맞춤통합지원_신청서.대상학생_정보?.거주지역 ?? "",
+      학교급: 학생맞춤통합지원_신청서.대상학생_정보?.학교급 ?? "",
+      학년: 학생맞춤통합지원_신청서.대상학생_정보?.학년 ?? "",
+    },
+    학생_기본사항: {
+      기초수급_보장현황: 학생맞춤통합지원_신청서.학생_기본사항?.기초수급_보장현황 ?? [],
+      가족현황: 학생맞춤통합지원_신청서.학생_기본사항?.가족현황 ?? [],
+      학생현황: 학생맞춤통합지원_신청서.학생_기본사항?.학생현황 ?? [],
+    },
+    학생_어려움: {
+      학업: 학생맞춤통합지원_신청서.학생_어려움?.학업 ?? [],
+      심리_정서: 학생맞춤통합지원_신청서.학생_어려움?.심리_정서 ?? [],
+      돌봄_안전_건강: 학생맞춤통합지원_신청서.학생_어려움?.돌봄_안전_건강 ?? [],
+      경제_생활: 학생맞춤통합지원_신청서.학생_어려움?.경제_생활 ?? [],
+      기타: 학생맞춤통합지원_신청서.학생_어려움?.기타 ?? "",
+    },
+    신청_사유: 학생맞춤통합지원_신청서.신청_사유 ?? [],
+    지원_요청_사항: 학생맞춤통합지원_신청서.지원_요청_사항 ?? [],
+  };
 
   const 관찰일지목록 = getObservationsForStudent(studentId).map(mapObservationToJournalRow);
 
   return {
     전체데이터: {
-      통합신청서정보,
+      학생맞춤통합지원_신청서: payload신청서,
       관찰일지목록,
     },
   };

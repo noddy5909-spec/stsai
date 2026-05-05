@@ -153,19 +153,33 @@ export function ManagedStudentsWithTabs({
     (activeStudentApplicationJson as
       | {
           전체데이터?: {
-            통합신청서정보?: {
-              학생인적사항?: Record<string, string | number>;
-              가정환경및자격?: Record<string, string>;
-              학생상태?: {
-                학생현황?: string;
-                학생어려움?: Record<string, string>;
+            학생맞춤통합지원_신청서?: {
+              대상학생_정보?: {
+                성명?: string;
+                생년월일?: string;
+                성별?: string;
+                거주지역?: string;
+                학교급?: string;
+                학년?: string;
               };
-              신청사유?: string;
-              지원요청사항?: string;
+              학생_기본사항?: {
+                기초수급_보장현황?: string[];
+                가족현황?: string[];
+                학생현황?: string[];
+              };
+              학생_어려움?: {
+                학업?: string[];
+                심리_정서?: string[];
+                돌봄_안전_건강?: string[];
+                경제_생활?: string[];
+                기타?: string;
+              };
+              신청_사유?: string[];
+              지원_요청_사항?: string[];
             };
           };
         }
-      | undefined)?.전체데이터?.통합신청서정보;
+      | undefined)?.전체데이터?.학생맞춤통합지원_신청서;
   const useExternalJournalPanel = Boolean(onStudentSelect);
 
   const tabBarBg = "bg-[#dde6f0]";
@@ -324,43 +338,44 @@ export function ManagedStudentsWithTabs({
                     <section className="rounded-md border border-slate-200 bg-white p-3">
                       <h3 className="text-xs font-semibold text-slate-700">기본 정보</h3>
                       <dl className="mt-1">
-                        <DetailRow label="학생 이름" value={activeApplicationInfo.학생인적사항?.학생이름} />
-                        <DetailRow
-                          label="학년"
-                          value={
-                            activeApplicationInfo.학생인적사항?.학년 != null
-                              ? `${activeApplicationInfo.학생인적사항.학년}학년`
-                              : "—"
-                          }
-                        />
-                        <DetailRow
-                          label="반"
-                          value={
-                            activeApplicationInfo.학생인적사항?.반 != null
-                              ? `${activeApplicationInfo.학생인적사항.반}반`
-                              : "—"
-                          }
-                        />
-                        <DetailRow label="성별" value={activeApplicationInfo.학생인적사항?.성별} />
-                        <DetailRow label="생년월일" value={activeApplicationInfo.학생인적사항?.생년월일} />
+                        <DetailRow label="학생 이름" value={activeApplicationInfo.대상학생_정보?.성명} />
+                        <DetailRow label="학년" value={activeApplicationInfo.대상학생_정보?.학년} />
+                        <DetailRow label="학교급" value={activeApplicationInfo.대상학생_정보?.학교급} />
+                        <DetailRow label="성별" value={activeApplicationInfo.대상학생_정보?.성별} />
+                        <DetailRow label="생년월일" value={activeApplicationInfo.대상학생_정보?.생년월일} />
+                        <DetailRow label="거주지역" value={activeApplicationInfo.대상학생_정보?.거주지역} />
                         <DetailRow
                           label="기초수급보장현황"
-                          value={activeApplicationInfo.가정환경및자격?.기초수급보장현황}
+                          value={activeApplicationInfo.학생_기본사항?.기초수급_보장현황?.join(", ")}
                         />
-                        <DetailRow label="학생 기본사항" value={activeApplicationInfo.가정환경및자격?.학생기본사항} />
-                        <DetailRow label="가족현황" value={activeApplicationInfo.가정환경및자격?.가족현황} />
-                        <DetailRow label="학생현황" value={activeApplicationInfo.학생상태?.학생현황} />
+                        <DetailRow
+                          label="가족현황"
+                          value={activeApplicationInfo.학생_기본사항?.가족현황?.join(", ")}
+                        />
+                        <DetailRow
+                          label="학생현황"
+                          value={activeApplicationInfo.학생_기본사항?.학생현황?.join(", ")}
+                        />
                       </dl>
                     </section>
 
                     <section className="rounded-md border border-slate-200 bg-white p-3">
                       <h3 className="text-xs font-semibold text-slate-700">주요 어려움</h3>
                       <dl className="mt-1">
-                        <DetailRow label="학업" value={activeApplicationInfo.학생상태?.학생어려움?.학업} />
-                        <DetailRow label="심리·정서" value={activeApplicationInfo.학생상태?.학생어려움?.심리_정서} />
-                        <DetailRow label="돌봄·안전·건강" value={activeApplicationInfo.학생상태?.학생어려움?.돌봄_안전_건강} />
-                        <DetailRow label="경제·생활" value={activeApplicationInfo.학생상태?.학생어려움?.경제_생활} />
-                        <DetailRow label="기타" value={activeApplicationInfo.학생상태?.학생어려움?.기타} />
+                        <DetailRow label="학업" value={activeApplicationInfo.학생_어려움?.학업?.join(", ")} />
+                        <DetailRow
+                          label="심리·정서"
+                          value={activeApplicationInfo.학생_어려움?.심리_정서?.join(", ")}
+                        />
+                        <DetailRow
+                          label="돌봄·안전·건강"
+                          value={activeApplicationInfo.학생_어려움?.돌봄_안전_건강?.join(", ")}
+                        />
+                        <DetailRow
+                          label="경제·생활"
+                          value={activeApplicationInfo.학생_어려움?.경제_생활?.join(", ")}
+                        />
+                        <DetailRow label="기타" value={activeApplicationInfo.학생_어려움?.기타} />
                       </dl>
                     </section>
                   </div>
@@ -369,13 +384,13 @@ export function ManagedStudentsWithTabs({
                     <section className="rounded-md border border-slate-200 bg-white p-3">
                       <h3 className="text-xs font-semibold text-slate-700">신청 사유</h3>
                       <p className="mt-1 text-xs leading-relaxed text-slate-700 sm:text-sm">
-                        {activeApplicationInfo.신청사유 ?? "-"}
+                        {activeApplicationInfo.신청_사유?.join(" / ") ?? "-"}
                       </p>
                     </section>
                     <section className="rounded-md border border-slate-200 bg-white p-3">
                       <h3 className="text-xs font-semibold text-slate-700">지원 요청 사항</h3>
                       <p className="mt-1 text-xs leading-relaxed text-slate-700 sm:text-sm">
-                        {activeApplicationInfo.지원요청사항 ?? "-"}
+                        {activeApplicationInfo.지원_요청_사항?.join(" / ") ?? "-"}
                       </p>
                     </section>
                   </div>
