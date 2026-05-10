@@ -42,6 +42,7 @@ export type StudentAnalyzeResult = {
 export const ANALYZE_STUDENT_API_URL = "/api/analyze-student";
 
 export type AnalyzeStudentJournalRow = {
+  교사이름: string;
   직위: string;
   날짜: string;
   시간: string;
@@ -77,6 +78,7 @@ export function mapObservationToJournalRow(o: ObservationEntry): AnalyzeStudentJ
   const 특이사항 = (noteMatch?.[1] ?? "").trim();
 
   return {
+    교사이름: o.author,
     직위: o.role,
     날짜: datePart,
     시간: normalizeTimePart(timePartRaw),
@@ -96,6 +98,8 @@ export function buildAnalyzeStudentPayload(studentId: string): Record<string, un
         전체데이터?: {
           학생맞춤통합지원_신청서?: {
             대상학생_정보?: {
+              성명?: string;
+              생년월일?: string;
               성별?: string;
               거주지역?: string;
               학교급?: string;
@@ -127,6 +131,8 @@ export function buildAnalyzeStudentPayload(studentId: string): Record<string, un
 
   const payload신청서 = {
     대상학생_정보: {
+      성명: 학생맞춤통합지원_신청서.대상학생_정보?.성명 ?? "",
+      생년월일: 학생맞춤통합지원_신청서.대상학생_정보?.생년월일 ?? "",
       성별: 학생맞춤통합지원_신청서.대상학생_정보?.성별 ?? "",
       거주지역: 학생맞춤통합지원_신청서.대상학생_정보?.거주지역 ?? "",
       학교급: 학생맞춤통합지원_신청서.대상학생_정보?.학교급 ?? "",

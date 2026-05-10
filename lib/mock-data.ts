@@ -25,14 +25,14 @@ export const managedStudents: ManagedStudent[] = [
   {
     id: "ms-hgd-001",
     name: "홍길동",
-    gradeClass: "초등학교 3학년 1반",
+    gradeClass: "고등학교 3학년 1반",
     status: "지원중",
     lastUpdated: "2026-04-14",
   },
   {
     id: "ms-lje-002",
     name: "이지은",
-    gradeClass: "초등학교 3학년 1반",
+    gradeClass: "고등학교 3학년 1반",
     status: "지원중",
     lastUpdated: "2026-04-16",
   },
@@ -67,10 +67,10 @@ export const studentApplicationDetailsById: Record<string, unknown> = {
       학생맞춤통합지원_신청서: {
         대상학생_정보: {
           성명: "홍길동",
-          생년월일: "2015-05-20",
+          생년월일: "2006-05-20",
           성별: "남",
           거주지역: "서울특별시",
-          학교급: "초등학교",
+          학교급: "고등학교",
           학년: "3학년",
         },
         학생_기본사항: {
@@ -101,10 +101,10 @@ export const studentApplicationDetailsById: Record<string, unknown> = {
       학생맞춤통합지원_신청서: {
         대상학생_정보: {
           성명: "이지은",
-          생년월일: "2017-05-12",
+          생년월일: "2007-05-12",
           성별: "여",
           거주지역: "경기도 수원시",
-          학교급: "초등학교",
+          학교급: "고등학교",
           학년: "3학년",
         },
         학생_기본사항: {
